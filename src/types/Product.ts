@@ -1,7 +1,7 @@
 export type SpiceLevel = "MILD" | "MEDIUM" | "HOT";
 
 export interface Product {
-  id: number;
+  id: number | null;
   name: string;
   description: string;
   price: number;

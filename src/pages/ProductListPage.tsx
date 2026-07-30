@@ -1,6 +1,7 @@
 import { useEffect, useState } from "react";
 import { getProducts } from "../api/productApi";
 import { ProductCard } from "../components/ProductCard";
+import { Header } from "../components/layout/Header";
 import type { Product } from "../types/Product";
 
 export function ProductListPage() {
@@ -47,6 +48,7 @@ export function ProductListPage() {
 
   return (
     <main className="min-h-screen bg-amber-50">
+    <Header />
       <section className="bg-emerald-900 px-6 py-16 text-white">
         <div className="mx-auto max-w-7xl">
           <p className="mb-3 font-semibold uppercase tracking-widest text-amber-300">
