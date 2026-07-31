@@ -1,4 +1,4 @@
-import { apiClient } from "./apiClient";
+import { publicApiClient } from "./apiClient";
 import type {
   AuthResponse,
   LoginRequest,
@@ -8,7 +8,8 @@ import type {
 export async function login(
   request: LoginRequest
 ): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>(
+  const response =
+    await publicApiClient.post<AuthResponse>(
     "/auth/login",
     request
   );
@@ -19,7 +20,8 @@ export async function login(
 export async function register(
   request: RegisterRequest
 ): Promise<AuthResponse> {
-  const response = await apiClient.post<AuthResponse>(
+  const response =
+    await publicApiClient.post<AuthResponse>(
     "/auth/register",
     request
   );
