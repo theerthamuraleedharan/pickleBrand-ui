@@ -22,16 +22,12 @@ interface AuthContextValue {
   logout: () => void;
 }
 
-const AuthContext = createContext<
-  AuthContextValue | undefined
->(undefined);
+const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({
   children,
 }: PropsWithChildren) {
-  const [user, setUser] = useState<AuthUser | null>(
-    getStoredUser
-  );
+  const [user, setUser] = useState<AuthUser | null>(getStoredUser());
 
   const value = useMemo<AuthContextValue>(
     () => ({

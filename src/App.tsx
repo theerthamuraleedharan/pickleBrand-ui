@@ -4,8 +4,9 @@ import {
   Routes,
 } from "react-router-dom";
 
-import { AuthLandingPage } from "./pages/AuthLandingPage";
+import { LoginPage } from "./pages/Login";
 import { ProductListPage } from "./pages/ProductListPage";
+import { RegisterPage } from "./pages/Register";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
 
 function App() {
@@ -13,7 +14,17 @@ function App() {
     <Routes>
       <Route
         path="/"
-        element={<AuthLandingPage />}
+        element={<Navigate to="/login" replace />}
+      />
+
+      <Route
+        path="/login"
+        element={<LoginPage />}
+      />
+
+      <Route
+        path="/register"
+        element={<RegisterPage />}
       />
 
       <Route
@@ -27,7 +38,7 @@ function App() {
 
       <Route
         path="*"
-        element={<Navigate to="/" replace />}
+        element={<Navigate to="/login" replace />}
       />
     </Routes>
   );

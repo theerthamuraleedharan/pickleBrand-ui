@@ -1,15 +1,9 @@
 import { useState, type FormEvent } from "react";
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useNavigate } from "react-router-dom";
 import axios from "axios";
 
-import {
-  login,
-  register,
-} from "../api/authApi";
-
+import { login } from "../api/authApi";
 import { useAuth } from "../contexts/AuthContext";
-
-type AuthMode = "login" | "register";
 
 function extractErrorMessage(error: unknown): string {
   if (axios.isAxiosError(error)) {
@@ -20,38 +14,23 @@ function extractErrorMessage(error: unknown): string {
     return (
       data?.detail ??
       data?.message ??
-      "Authentication failed"
+      "Login failed"
     );
   }
 
   return "An unexpected error occurred";
 }
 
-export function AuthLandingPage() {
+export function LoginPage() {
   const navigate = useNavigate();
   const {
     authenticated,
     completeAuthentication,
   } = useAuth();
 
-  const [mode, setMode] =
-    useState<AuthMode>("login");
-
-  const [firstName, setFirstName] =
-    useState("");
-
-  const [lastName, setLastName] =
-    useState("");
-
-  const [email, setEmail] =
-    useState("");
-
-  const [password, setPassword] =
-    useState("");
-
-  const [loading, setLoading] =
-    useState(false);
-
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
+  const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
 
@@ -68,33 +47,18 @@ export function AuthLandingPage() {
       setLoading(true);
       setErrorMessage(null);
 
-      const response =
-        mode === "login"
-          ? await login({
-              email,
-              password,
-            })
-          : await register({
-              firstName,
-              lastName,
-              email,
-              password,
-            });
+      const response = await login({
+        email,
+        password,
+      });
 
       completeAuthentication(response);
       navigate("/products", { replace: true });
     } catch (error) {
-      setErrorMessage(
-        extractErrorMessage(error)
-      );
+      setErrorMessage(extractErrorMessage(error));
     } finally {
       setLoading(false);
     }
-  }
-
-  function changeMode(nextMode: AuthMode) {
-    setMode(nextMode);
-    setErrorMessage(null);
   }
 
   return (
@@ -126,7 +90,7 @@ export function AuthLandingPage() {
         </div>
 
         <p className="relative text-sm text-emerald-200">
-          Fresh ingredients · Authentic spices · Homemade
+          Fresh ingredients - Authentic spices - Homemade
         </p>
       </section>
 
@@ -139,45 +103,13 @@ export function AuthLandingPage() {
           </div>
 
           <div className="rounded-3xl bg-white p-7 shadow-xl shadow-emerald-950/5 sm:p-9">
-            <div className="mb-7 grid grid-cols-2 rounded-xl bg-gray-100 p-1">
-              <button
-                type="button"
-                onClick={() => changeMode("login")}
-                className={`rounded-lg px-4 py-3 font-semibold transition ${
-                  mode === "login"
-                    ? "bg-white text-emerald-800 shadow-sm"
-                    : "text-gray-500"
-                }`}
-              >
-                Login
-              </button>
-
-              <button
-                type="button"
-                onClick={() =>
-                  changeMode("register")
-                }
-                className={`rounded-lg px-4 py-3 font-semibold transition ${
-                  mode === "register"
-                    ? "bg-white text-emerald-800 shadow-sm"
-                    : "text-gray-500"
-                }`}
-              >
-                Register
-              </button>
-            </div>
-
             <div className="mb-7">
               <h2 className="text-3xl font-black text-gray-900">
-                {mode === "login"
-                  ? "Welcome back"
-                  : "Create your account"}
+                Welcome back
               </h2>
 
               <p className="mt-2 text-gray-500">
-                {mode === "login"
-                  ? "Login to explore our homemade pickles."
-                  : "Register to begin shopping with us."}
+                Login to explore our homemade pickles.
               </p>
             </div>
 
@@ -185,48 +117,6 @@ export function AuthLandingPage() {
               onSubmit={handleSubmit}
               className="space-y-5"
             >
-              {mode === "register" && (
-                <div className="grid gap-4 sm:grid-cols-2">
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-gray-700">
-                      First name
-                    </span>
-
-                    <input
-                      value={firstName}
-                      onChange={(event) =>
-                        setFirstName(
-                          event.target.value
-                        )
-                      }
-                      required
-                      maxLength={100}
-                      autoComplete="given-name"
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-                    />
-                  </label>
-
-                  <label className="block">
-                    <span className="mb-2 block text-sm font-semibold text-gray-700">
-                      Last name
-                    </span>
-
-                    <input
-                      value={lastName}
-                      onChange={(event) =>
-                        setLastName(
-                          event.target.value
-                        )
-                      }
-                      required
-                      maxLength={100}
-                      autoComplete="family-name"
-                      className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-                    />
-                  </label>
-                </div>
-              )}
-
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-gray-700">
                   Email
@@ -255,19 +145,14 @@ export function AuthLandingPage() {
                   type="password"
                   value={password}
                   onChange={(event) =>
-                    setPassword(
-                      event.target.value
-                    )
+                    setPassword(event.target.value)
                   }
                   required
+                  minLength={8}
                   maxLength={72}
-                  autoComplete={
-                    mode === "login"
-                      ? "current-password"
-                      : "new-password"
-                  }
+                  autoComplete="current-password"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
-                  placeholder=""
+                  placeholder="Minimum 8 characters"
                 />
               </label>
 
@@ -282,13 +167,19 @@ export function AuthLandingPage() {
                 disabled={loading}
                 className="w-full rounded-xl bg-emerald-800 px-5 py-3.5 font-bold text-white transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60"
               >
-                {loading
-                  ? "Please wait..."
-                  : mode === "login"
-                    ? "Login"
-                    : "Create account"}
+                {loading ? "Please wait..." : "Login"}
               </button>
             </form>
+
+            <p className="mt-6 text-center text-sm text-gray-500">
+              New to Sujus Pickle?{" "}
+              <Link
+                to="/register"
+                className="font-bold text-emerald-800 hover:text-emerald-900"
+              >
+                Create an account
+              </Link>
+            </p>
           </div>
         </div>
       </section>
