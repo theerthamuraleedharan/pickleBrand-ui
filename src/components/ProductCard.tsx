@@ -55,6 +55,10 @@ export function ProductCard({
           {product.description}
         </p>
 
+        <p className="mt-4 min-h-18 text-sm leading-6 text-gray-600">
+          {product.category}
+        </p>
+
         <div className="mt-5 flex items-end justify-between gap-4">
           <div>
             <p className="text-2xl font-bold text-emerald-700">

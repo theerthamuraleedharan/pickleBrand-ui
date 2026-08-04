@@ -1,15 +1,32 @@
-import { useEffect, useState } from "react";
+import {
+  useEffect,
+  useMemo,
+  useState,
+} from "react";
+
 import { getProducts } from "../api/productApi";
 import { ProductCard } from "../components/ProductCard";
 import { Header } from "../components/layout/Header";
-import type { Product } from "../types/Product";
+import { CategoryFilterBar } from "../components/products/CategoryFilterBar";
+import type {
+  Product,
+  ProductCategory,
+} from "../types/Product";
+
+const categoryTitles: Record<ProductCategory, string> = {
+  VEG: "Vegetarian Pickles",
+  NON_VEG: "Non-Vegetarian Pickles",
+  MIXED: "Mixed Pickles",
+};
 
 export function ProductListPage() {
   const [products, setProducts] = useState<Product[]>([]);
   const [loading, setLoading] = useState(true);
-  const [errorMessage, setErrorMessage] = useState<
-    string | null
-  >(null);
+  const [errorMessage, setErrorMessage] =
+    useState<string | null>(null);
+
+  const [selectedCategory, setSelectedCategory] =
+    useState<ProductCategory>("VEG");
 
   useEffect(() => {
     let ignoreResult = false;
@@ -46,9 +63,17 @@ export function ProductListPage() {
     };
   }, []);
 
+  const filteredProducts = useMemo(() => {
+    return products.filter(
+      (product) =>
+        product.category === selectedCategory
+    );
+  }, [products, selectedCategory]);
+
   return (
     <main className="min-h-screen bg-amber-50">
-    <Header />
+      <Header />
+
       <section className="bg-emerald-900 px-6 py-16 text-white">
         <div className="mx-auto max-w-7xl">
           <p className="mb-3 font-semibold uppercase tracking-widest text-amber-300">
@@ -66,25 +91,43 @@ export function ProductListPage() {
         </div>
       </section>
 
-      <section className="mx-auto max-w-7xl px-6 py-12">
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900">
-            Our pickles
-          </h2>
+      <section className="mx-auto -mt-7 max-w-7xl px-6 pt-0">
+        <CategoryFilterBar
+          selectedCategory={selectedCategory}
+          onCategoryChange={setSelectedCategory}
+        />
 
-          <p className="mt-2 text-gray-600">
-            Select your preferred flavour and spice level.
-          </p>
+        <div className="mt-8 flex flex-col gap-4 sm:flex-row sm:items-end sm:justify-between">
+          <div>
+            <h2 className="text-3xl font-black text-gray-900">
+              {categoryTitles[selectedCategory]}
+            </h2>
+
+            <p className="mt-2 text-gray-600">
+              Select your preferred flavour and spice level.
+            </p>
+          </div>
+
+          {!loading && !errorMessage && (
+            <p className="text-sm font-semibold text-gray-500">
+              {filteredProducts.length}{" "}
+              {filteredProducts.length === 1
+                ? "product"
+                : "products"}
+            </p>
+          )}
         </div>
+      </section>
 
+      <section className="mx-auto max-w-7xl px-6 py-10">
         {loading && (
-          <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
+          <div className="rounded-lg bg-white p-8 text-center shadow-sm">
             Loading products...
           </div>
         )}
 
         {errorMessage && (
-          <div className="rounded-2xl border border-red-200 bg-red-50 p-5 text-red-700">
+          <div className="rounded-lg border border-red-200 bg-red-50 p-5 text-red-700">
             {errorMessage}
           </div>
         )}
@@ -92,7 +135,7 @@ export function ProductListPage() {
         {!loading &&
           !errorMessage &&
           products.length === 0 && (
-            <div className="rounded-2xl bg-white p-8 text-center shadow-sm">
+            <div className="rounded-lg bg-white p-8 text-center shadow-sm">
               No products are currently available.
             </div>
           )}
@@ -101,7 +144,7 @@ export function ProductListPage() {
           !errorMessage &&
           products.length > 0 && (
             <div className="grid gap-7 sm:grid-cols-2 lg:grid-cols-3">
-              {products.map((product) => (
+              {filteredProducts.map((product) => (
                 <ProductCard
                   key={product.id}
                   product={product}

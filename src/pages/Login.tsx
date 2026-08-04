@@ -148,7 +148,6 @@ export function LoginPage() {
                     setPassword(event.target.value)
                   }
                   required
-                  minLength={8}
                   maxLength={72}
                   autoComplete="current-password"
                   className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
