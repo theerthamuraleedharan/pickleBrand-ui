@@ -1,4 +1,4 @@
-import { useNavigate } from "react-router-dom";
+import { Link, useNavigate } from "react-router-dom";
 import { useAuth } from "../../contexts/AuthContext";
 
 export function Header() {
@@ -24,6 +24,13 @@ export function Header() {
             </p>
           )}
         </div>
+
+          <Link
+            to="/profile"
+            className="font-semibold text-emerald-800"
+          >
+            My profile
+          </Link>
 
         <button
           type="button"

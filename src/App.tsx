@@ -8,6 +8,7 @@ import { LoginPage } from "./pages/Login";
 import { ProductListPage } from "./pages/ProductListPage";
 import { RegisterPage } from "./pages/Register";
 import { ProtectedRoute } from "./routes/ProtectedRoute";
+import { UserProfilePage } from "./pages/UserProfilePage";
 
 function App() {
   return (
@@ -40,7 +41,19 @@ function App() {
         path="*"
         element={<Navigate to="/login" replace />}
       />
+
+      <Route
+        path="/profile"
+        element={
+          <ProtectedRoute>
+            <UserProfilePage />
+          </ProtectedRoute>
+        }
+      />
+
     </Routes>
+
+    
   );
 }
 

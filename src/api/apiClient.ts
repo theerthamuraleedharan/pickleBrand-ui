@@ -6,9 +6,6 @@ export const apiClient = axios.create({
     import.meta.env.VITE_API_BASE_URL ??
     "/api",
   timeout: 1000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 export const publicApiClient = axios.create({
@@ -16,9 +13,6 @@ export const publicApiClient = axios.create({
     import.meta.env.VITE_API_BASE_URL ??
     "/api",
   timeout: 1000,
-  headers: {
-    "Content-Type": "application/json",
-  },
 });
 
 apiClient.interceptors.request.use((config) => {

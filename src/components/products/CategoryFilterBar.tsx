@@ -116,7 +116,7 @@ export function CategoryFilterBar({
   onCategoryChange,
 }: CategoryFilterBarProps) {
   return (
-    <div className="mx-auto w-full max-w-4xl rounded-2xl border border-amber-200 bg-white/95 p-3 shadow-2xl shadow-emerald-950/10 ring-1 ring-white">
+    <div className="mx-auto w-full max-w-5xl rounded-2xl border border-amber-200 bg-white/95 p-3 shadow-2xl shadow-emerald-950/10 ring-1 ring-white">
       <div className="flex w-full flex-nowrap items-center justify-center gap-4 rounded-xl bg-gradient-to-r from-amber-50 via-white to-amber-50 p-2">
         {categories.map((category) => {
           const selected =
@@ -130,7 +130,7 @@ export function CategoryFilterBar({
                 onCategoryChange(category.value)
               }
               aria-pressed={selected}
-              className={`group relative flex h-13 flex-1 cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl border px-4 text-sm font-black transition duration-200 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-200 active:scale-[0.98] sm:h-16 sm:gap-4 sm:text-base ${
+              className={`group relative flex h-13 min-w-28 flex-1 cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl border px-5 text-base font-black transition duration-200 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-200 active:scale-[0.98] sm:h-16 sm:min-w-44 sm:gap-4 sm:px-8 sm:text-lg ${
                 selected
                   ? `${category.selectedClassName} border-transparent`
                   : "border-amber-100 bg-white text-gray-700 shadow-md shadow-amber-900/5 hover:border-amber-200 hover:bg-white hover:text-emerald-900 hover:shadow-lg hover:shadow-emerald-950/10"
