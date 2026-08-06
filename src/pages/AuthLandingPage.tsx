@@ -1,6 +1,5 @@
 import { useState, type FormEvent } from "react";
 import { Navigate, useNavigate } from "react-router-dom";
-import axios from "axios";
 
 import {
   login,
@@ -8,30 +7,16 @@ import {
 } from "../api/authApi";
 
 import { useAuth } from "../contexts/AuthContext";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 type AuthMode = "login" | "register";
-
-function extractErrorMessage(error: unknown): string {
-  if (axios.isAxiosError(error)) {
-    const data = error.response?.data as
-      | { detail?: string; message?: string }
-      | undefined;
-
-    return (
-      data?.detail ??
-      data?.message ??
-      "Authentication failed"
-    );
-  }
-
-  return "An unexpected error occurred";
-}
 
 export function AuthLandingPage() {
   const navigate = useNavigate();
   const {
     authenticated,
     completeAuthentication,
+    user,
   } = useAuth();
 
   const [mode, setMode] =
@@ -56,7 +41,12 @@ export function AuthLandingPage() {
     useState<string | null>(null);
 
   if (authenticated) {
-    return <Navigate to="/products" replace />;
+    return (
+      <Navigate
+        to={user?.role === "ADMIN" ? "/admin" : "/products"}
+        replace
+      />
+    );
   }
 
   async function handleSubmit(
@@ -82,10 +72,13 @@ export function AuthLandingPage() {
             });
 
       completeAuthentication(response);
-      navigate("/products", { replace: true });
+      navigate(
+        response.user.role === "ADMIN" ? "/admin" : "/products",
+        { replace: true }
+      );
     } catch (error) {
       setErrorMessage(
-        extractErrorMessage(error)
+        getApiErrorMessage(error, "Authentication failed")
       );
     } finally {
       setLoading(false);

@@ -16,10 +16,11 @@ export const publicApiClient = axios.create({
 });
 
 apiClient.interceptors.request.use((config) => {
-  const token = getAccessToken();
+  const accessToken = getAccessToken();
 
-  if (token) {
-    config.headers.Authorization = `Bearer ${token}`;
+  if (accessToken) {
+    config.headers.Authorization =
+      `Bearer ${accessToken}`;
   }
 
   return config;

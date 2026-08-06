@@ -7,8 +7,12 @@ import {
 import { LoginPage } from "./pages/Login";
 import { ProductListPage } from "./pages/ProductListPage";
 import { RegisterPage } from "./pages/Register";
-import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { UserProfilePage } from "./pages/UserProfilePage";
+import { ProtectedRoute } from "./routes/ProtectedRoute";
+
+import { AdminRoute } from "./api/AdminRoute";
+import { AdminLoginPage } from "./pages/AdminLoginPage";
+import { AdminDashboardPage } from "./pages/AdminDashboard";
 
 function App() {
   return (
@@ -38,11 +42,6 @@ function App() {
       />
 
       <Route
-        path="*"
-        element={<Navigate to="/login" replace />}
-      />
-
-      <Route
         path="/profile"
         element={
           <ProtectedRoute>
@@ -51,9 +50,25 @@ function App() {
         }
       />
 
-    </Routes>
+      <Route
+        path="/admin/login"
+        element={<AdminLoginPage />}
+      />
 
-    
+      <Route
+        path="/admin"
+        element={
+          <AdminRoute>
+            <AdminDashboardPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="*"
+        element={<Navigate to="/login" replace />}
+      />
+    </Routes>
   );
 }
 
