@@ -13,4 +13,5 @@ export interface Product {
   imageUrl: string | null;
   active: boolean;
   category: ProductCategory;
+  imageName: string | null;
 }

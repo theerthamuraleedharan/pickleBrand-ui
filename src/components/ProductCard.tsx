@@ -1,4 +1,5 @@
 import type { Product } from "../types/Product";
+import { resolveImageUrl } from "../utils/resolveImageUrl";
 
 interface ProductCardProps {
   product: Product;
@@ -13,12 +14,13 @@ export function ProductCard({
   product,
 }: ProductCardProps) {
   const outOfStock = product.stockQuantity === 0;
+   const imageUrl = resolveImageUrl(product.imageUrl);
 
   return (
     <article className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
-      {product.imageUrl ? (
+      {imageUrl ? (
         <img
-          src={product.imageUrl}
+          src={imageUrl}
           alt={product.name}
           className="h-52 w-full object-cover"
         />
