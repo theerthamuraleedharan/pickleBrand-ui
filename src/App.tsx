@@ -13,6 +13,8 @@ import { ProtectedRoute } from "./routes/ProtectedRoute";
 import { AdminRoute } from "./api/AdminRoute";
 import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/AdminDashboard";
+import { AdminProductsPage } from "./pages/AdminProductPages";
+import { AdminProductFormPage } from "./pages/AdminProductFormPage";
 
 function App() {
   return (
@@ -60,6 +62,33 @@ function App() {
         element={
           <AdminRoute>
             <AdminDashboardPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products"
+        element={
+          <AdminRoute>
+            <AdminProductsPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/new"
+        element={
+          <AdminRoute>
+            <AdminProductFormPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/products/:productId/edit"
+        element={
+          <AdminRoute>
+            <AdminProductFormPage />
           </AdminRoute>
         }
       />

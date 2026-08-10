@@ -2,6 +2,7 @@ import {
   useEffect,
   useState,
 } from "react";
+import { Link } from "react-router-dom";
 
 import {
   getAdminDashboard,
@@ -135,14 +136,25 @@ export function AdminDashboardPage() {
             </div>
 
             <section className="mt-10 rounded-2xl bg-white p-7 shadow-sm">
-              <h2 className="text-2xl font-black text-gray-900">
-                Store overview
-              </h2>
+              <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-2xl font-black text-gray-900">
+                    Store overview
+                  </h2>
 
-              <p className="mt-2 text-gray-600">
-                Manage your pickle products,
-                customers and store activity.
-              </p>
+                  <p className="mt-2 max-w-2xl text-gray-600">
+                    Review catalogue health and keep your
+                    pickle products ready for customers.
+                  </p>
+                </div>
+
+                <Link
+                  to="/admin/products"
+                  className="inline-flex items-center justify-center rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white transition hover:bg-emerald-900"
+                >
+                  Manage products
+                </Link>
+              </div>
             </section>
           </>
         )}
