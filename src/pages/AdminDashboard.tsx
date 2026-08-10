@@ -11,6 +11,7 @@ import {
   type AdminDashboardSummary,
 } from "../api/adminApi";
 
+import { AdminHeader } from "../components/admin/AdminHeader";
 import { DashboardStatCard } from "../components/admin/DashboardStatCard";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
@@ -73,31 +74,14 @@ export function AdminDashboardPage() {
 
   return (
     <main className="min-h-screen bg-gray-100">
-      <header className="bg-emerald-950 px-6 py-7 text-white">
-        <div className="mx-auto flex max-w-7xl items-center justify-between gap-6">
-          <div>
-            <p className="text-sm font-bold uppercase tracking-[0.25em] text-amber-300">
-              Sujus Pickle
-            </p>
-
-            <h1 className="mt-2 text-3xl font-black">
-              Admin dashboard
-            </h1>
-          </div>
-
-          {dashboard && (
-            <div className="text-right">
-              <p className="text-sm text-emerald-200">
-                Logged in as
-              </p>
-
-              <p className="font-bold">
-                {dashboard.email}
-              </p>
-            </div>
-          )}
-        </div>
-      </header>
+      <AdminHeader
+        title="Admin dashboard"
+        subtitle={
+          dashboard
+            ? `Logged in as ${dashboard.email}`
+            : "Manage store activity and catalogue health."
+        }
+      />
 
       <section className="mx-auto max-w-7xl px-6 py-10">
         {errorMessage && (

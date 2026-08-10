@@ -12,6 +12,7 @@ import {
   getAdminProducts,
 } from "../api/AdminProductApi";
 
+import { AdminHeader } from "../components/admin/AdminHeader";
 import type {
   AdminProduct,
 } from "../types/AdminProduct";
@@ -112,33 +113,22 @@ export function AdminProductsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10">
+    <main className="min-h-screen bg-gray-100">
+      <AdminHeader
+        title="Products"
+        subtitle="Manage your pickle catalogue."
+      >
+        <Link
+          to="/admin/products/new"
+          className="rounded-xl bg-amber-300 px-4 py-2 text-sm font-bold text-emerald-950 transition hover:bg-amber-200"
+        >
+          Add product
+        </Link>
+      </AdminHeader>
 
-      <div className="mx-auto max-w-7xl">
-
-        <div className="flex items-center justify-between">
-
-          <div>
-            <h1 className="text-3xl font-black">
-              Products
-            </h1>
-
-            <p className="mt-1 text-gray-500">
-              Manage your pickle catalogue.
-            </p>
-          </div>
-
-          <Link
-            to="/admin/products/new"
-            className="rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white"
-          >
-            + Add product
-          </Link>
-
-        </div>
-
+      <section className="mx-auto max-w-7xl px-6 py-10">
         {errorMessage && (
-          <div className="mt-6 rounded-xl bg-red-50 p-4 text-red-700">
+          <div className="rounded-xl bg-red-50 p-4 text-red-700">
             {errorMessage}
           </div>
         )}
@@ -286,8 +276,7 @@ export function AdminProductsPage() {
           </div>
         )}
 
-      </div>
-
+      </section>
     </main>
   );
 }

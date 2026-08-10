@@ -16,6 +16,7 @@ import {
   updateAdminProduct,
 } from "../api/AdminProductApi";
 
+import { AdminHeader } from "../components/admin/AdminHeader";
 import { getApiErrorMessage }
   from "../utils/getApiErrorMessage";
 
@@ -156,9 +157,13 @@ export function AdminProductFormPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100 px-6 py-10">
-      <div className="mx-auto max-w-3xl">
+    <main className="min-h-screen bg-gray-100">
+      <AdminHeader
+        title={editing ? "Edit product" : "Add product"}
+        subtitle="Update catalogue details, pricing, stock, and product photos."
+      />
 
+      <section className="mx-auto max-w-3xl px-6 py-10">
         <button
           type="button"
           onClick={() =>
@@ -413,7 +418,7 @@ export function AdminProductFormPage() {
 
           </form>
         </div>
-      </div>
+      </section>
     </main>
   );
 }
