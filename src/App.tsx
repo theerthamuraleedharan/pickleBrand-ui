@@ -5,6 +5,7 @@ import {
 } from "react-router-dom";
 
 import { LoginPage } from "./pages/Login";
+import { CartPage } from "./pages/CartPage";
 import { ProductListPage } from "./pages/ProductListPage";
 import { RegisterPage } from "./pages/Register";
 import { UserProfilePage } from "./pages/UserProfilePage";
@@ -19,6 +20,7 @@ import { AdminProductFormPage } from "./pages/AdminProductFormPage";
 function App() {
   return (
     <Routes>
+      <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
       <Route
         path="/"
         element={<Navigate to="/login" replace />}

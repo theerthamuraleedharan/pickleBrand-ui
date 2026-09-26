@@ -1,4 +1,5 @@
 import type { Product } from "../types/Product";
+import { useCart } from "../contexts/cartContext";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
 
 interface ProductCardProps {
@@ -13,7 +14,10 @@ const priceFormatter = new Intl.NumberFormat("en-IN", {
 export function ProductCard({
   product,
 }: ProductCardProps) {
-  const outOfStock = product.stockQuantity === 0;
+  const { items, addItem } = useCart();
+  const quantityInCart = items.find(item => item.product.id === product.id)?.quantity ?? 0;
+  const outOfStock = product.stockQuantity <= 0 || !product.active;
+  const atLimit = quantityInCart >= product.stockQuantity;
    const imageUrl = resolveImageUrl(product.imageUrl);
 
   return (
@@ -82,12 +86,16 @@ export function ProductCard({
 
           <button
             type="button"
-            disabled={outOfStock}
+            disabled={outOfStock || atLimit || product.id === null}
+            onClick={() => addItem(product)}
             className="rounded-xl bg-emerald-700 px-4 py-2 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
           >
-            Add to cart
+            {outOfStock ? "Unavailable" : atLimit ? "Max in cart" : "Add to cart"}
           </button>
         </div>
+        <p role="status" className="mt-3 min-h-5 text-sm font-semibold text-emerald-800">
+          {quantityInCart > 0 ? `${quantityInCart} in your cart` : ""}
+        </p>
       </div>
     </article>
   );

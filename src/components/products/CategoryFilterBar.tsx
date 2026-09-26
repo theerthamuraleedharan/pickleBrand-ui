@@ -1,14 +1,16 @@
 import type { ProductCategory } from "../../types/Product";
 
+export type CategoryFilter = ProductCategory | "ALL";
+
 interface CategoryFilterBarProps {
-  selectedCategory: ProductCategory;
+  selectedCategory: CategoryFilter;
   onCategoryChange: (
-    category: ProductCategory
+    category: CategoryFilter
   ) => void;
 }
 
 interface CategoryOption {
-  value: ProductCategory;
+  value: CategoryFilter;
   label: string;
   icon: "leaf" | "fish" | "jar";
   selectedClassName: string;
@@ -16,6 +18,14 @@ interface CategoryOption {
 }
 
 const categories: CategoryOption[] = [
+  {
+    value: "ALL",
+    label: "All",
+    selectedClassName:
+      "bg-gradient-to-r from-emerald-800 to-lime-700 text-white shadow-lg shadow-emerald-900/25",
+    iconClassName: "bg-emerald-100 text-emerald-800",
+    icon: "jar",
+  },
   {
     value: "VEG",
     label: "Veg",
@@ -117,7 +127,7 @@ export function CategoryFilterBar({
 }: CategoryFilterBarProps) {
   return (
     <div className="mx-auto w-full max-w-5xl rounded-2xl border border-amber-200 bg-white/95 p-3 shadow-2xl shadow-emerald-950/10 ring-1 ring-white">
-      <div className="flex w-full flex-nowrap items-center justify-center gap-4 rounded-xl bg-gradient-to-r from-amber-50 via-white to-amber-50 p-2">
+      <div className="grid w-full grid-cols-2 items-center gap-2 rounded-xl bg-gradient-to-r from-amber-50 via-white to-amber-50 p-2 md:grid-cols-4 md:gap-4">
         {categories.map((category) => {
           const selected =
             category.value === selectedCategory;
@@ -130,7 +140,7 @@ export function CategoryFilterBar({
                 onCategoryChange(category.value)
               }
               aria-pressed={selected}
-              className={`group relative flex h-13 min-w-28 flex-1 cursor-pointer items-center justify-center gap-3 overflow-hidden rounded-xl border px-5 text-base font-black transition duration-200 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-200 active:scale-[0.98] sm:h-16 sm:min-w-44 sm:gap-4 sm:px-8 sm:text-lg ${
+              className={`group relative flex h-13 min-w-0 cursor-pointer items-center justify-center gap-2 overflow-hidden rounded-xl border px-2 text-base font-black transition duration-200 hover:-translate-y-1 focus:outline-none focus:ring-4 focus:ring-amber-200 active:scale-[0.98] sm:h-16 sm:gap-3 sm:px-4 sm:text-lg ${
                 selected
                   ? `${category.selectedClassName} border-transparent`
                   : "border-amber-100 bg-white text-gray-700 shadow-md shadow-amber-900/5 hover:border-amber-200 hover:bg-white hover:text-emerald-900 hover:shadow-lg hover:shadow-emerald-950/10"

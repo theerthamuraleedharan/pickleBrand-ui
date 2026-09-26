@@ -8,12 +8,13 @@ import { getProducts } from "../api/productApi";
 import { ProductCard } from "../components/ProductCard";
 import { Header } from "../components/layout/Header";
 import { CategoryFilterBar } from "../components/products/CategoryFilterBar";
+import type { CategoryFilter } from "../components/products/CategoryFilterBar";
 import type {
   Product,
-  ProductCategory,
 } from "../types/Product";
 
-const categoryTitles: Record<ProductCategory, string> = {
+const categoryTitles: Record<CategoryFilter, string> = {
+  ALL: "All Pickles",
   VEG: "Vegetarian Pickles",
   NON_VEG: "Non-Vegetarian Pickles",
   MIXED: "Mixed Pickles",
@@ -26,7 +27,7 @@ export function ProductListPage() {
     useState<string | null>(null);
 
   const [selectedCategory, setSelectedCategory] =
-    useState<ProductCategory>("VEG");
+    useState<CategoryFilter>("ALL");
 
   useEffect(() => {
     let ignoreResult = false;
@@ -64,6 +65,8 @@ export function ProductListPage() {
   }, []);
 
   const filteredProducts = useMemo(() => {
+    if (selectedCategory === "ALL") return products;
+
     return products.filter(
       (product) =>
         product.category === selectedCategory
@@ -137,6 +140,15 @@ export function ProductListPage() {
           products.length === 0 && (
             <div className="rounded-lg bg-white p-8 text-center shadow-sm">
               No products are currently available.
+            </div>
+          )}
+
+        {!loading &&
+          !errorMessage &&
+          products.length > 0 &&
+          filteredProducts.length === 0 && (
+            <div className="rounded-lg bg-white p-8 text-center shadow-sm">
+              No pickles are currently available in this category. Select All to see every pickle.
             </div>
           )}
 
