@@ -1,5 +1,6 @@
 import {
   useEffect,
+  useRef,
   useState,
   type ChangeEvent,
   type FormEvent,
@@ -12,6 +13,7 @@ import {
   getProfile,
   getProfilePhoto,
   updateProfile,
+  updateAddress,
   uploadProfilePhoto,
 } from "../api/profileApi";
 
@@ -50,6 +52,18 @@ export function UserProfilePage() {
 
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
+
+  const [successMessage, setSuccessMessage] =
+    useState<string | null>(null);
+
+  const [saving, setSaving] = useState(false);
+  const [uploadingPhoto, setUploadingPhoto] = useState(false);
+  const [savingAddress, setSavingAddress] = useState(false);
+  const [editingAddressId, setEditingAddressId] =
+    useState<number | null>(null);
+  const [deletingAddressId, setDeletingAddressId] =
+    useState<number | null>(null);
+  const addressFormRef = useRef<HTMLFormElement>(null);
 
   const [loading, setLoading] =
     useState(true);
@@ -111,7 +125,9 @@ export function UserProfilePage() {
 
     try {
       setErrorMessage(null);
+      setSuccessMessage(null);
 
+      setSaving(true);
       const updated = await updateProfile({
         firstName: profile.firstName,
         lastName: profile.lastName,
@@ -119,8 +135,12 @@ export function UserProfilePage() {
       });
 
       setProfile(updated);
+      setSuccessMessage("Your profile has been saved.");
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
+      setSuccessMessage(null);
+    } finally {
+      setSaving(false);
     }
   }
 
@@ -135,15 +155,19 @@ export function UserProfilePage() {
 
     try {
       setErrorMessage(null);
+      setSuccessMessage(null);
+      setUploadingPhoto(true);
 
       const updated =
         await uploadProfilePhoto(file);
 
       setProfile(updated);
       await loadPhoto();
+      setSuccessMessage("Your profile photo has been saved.");
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
     } finally {
+      setUploadingPhoto(false);
       event.target.value = "";
     }
   }
@@ -155,27 +179,122 @@ export function UserProfilePage() {
 
     try {
       setErrorMessage(null);
+      setSuccessMessage(null);
+      setSavingAddress(true);
 
-      await createAddress(addressForm);
+      if (editingAddressId !== null) {
+        const updatedAddress = await updateAddress(
+          editingAddressId,
+          addressForm,
+        );
+        setAddresses((currentAddresses) =>
+          currentAddresses.map((address) => {
+            if (address.id === updatedAddress.id) return updatedAddress;
+            return updatedAddress.defaultAddress
+              ? { ...address, defaultAddress: false }
+              : address;
+          }),
+        );
+        setSuccessMessage("Your delivery address has been updated.");
+      } else {
+        const createdAddress = await createAddress(addressForm);
+        setAddresses((currentAddresses) => [
+          ...currentAddresses.map((address) => ({
+            ...address,
+            defaultAddress: createdAddress.defaultAddress
+              ? false
+              : address.defaultAddress,
+          })),
+          createdAddress,
+        ]);
+        setSuccessMessage("Your delivery address has been saved.");
+      }
 
       setAddressForm(emptyAddress);
-      setAddresses(await getAddresses());
+      setEditingAddressId(null);
     } catch (error) {
       setErrorMessage(getApiErrorMessage(error));
+      setSuccessMessage(null);
+    } finally {
+      setSavingAddress(false);
     }
+  }
+
+  function handleEditAddress(address: Address) {
+    setEditingAddressId(address.id);
+    setAddressForm({
+      recipientName: address.recipientName,
+      phone: address.phone,
+      addressLine1: address.addressLine1,
+      addressLine2: address.addressLine2 ?? "",
+      city: address.city,
+      state: address.state ?? "",
+      postalCode: address.postalCode,
+      country: address.country,
+      defaultAddress: address.defaultAddress,
+    });
+    setErrorMessage(null);
+    setSuccessMessage(null);
+    addressFormRef.current?.scrollIntoView({
+      behavior: "smooth",
+      block: "center",
+    });
+  }
+
+  function cancelAddressEdit() {
+    setEditingAddressId(null);
+    setAddressForm(emptyAddress);
+    setErrorMessage(null);
+    setSuccessMessage(null);
   }
 
   async function handleDeleteAddress(
     addressId: number
   ) {
-    await deleteAddress(addressId);
-    setAddresses(await getAddresses());
+    try {
+      setErrorMessage(null);
+      setSuccessMessage(null);
+      setDeletingAddressId(addressId);
+      await deleteAddress(addressId);
+      if (editingAddressId === addressId) {
+        setEditingAddressId(null);
+        setAddressForm(emptyAddress);
+      }
+      setAddresses((currentAddresses) => {
+        const removedAddress = currentAddresses.find(
+          (address) => address.id === addressId,
+        );
+        const remaining = currentAddresses.filter(
+          (address) => address.id !== addressId,
+        );
+        if (removedAddress?.defaultAddress && remaining.length > 0) {
+          remaining[0] = { ...remaining[0], defaultAddress: true };
+        }
+        return remaining;
+      });
+      setSuccessMessage("The delivery address has been deleted.");
+    } catch (error) {
+      setErrorMessage(getApiErrorMessage(error));
+      setSuccessMessage(null);
+    } finally {
+      setDeletingAddressId(null);
+    }
   }
 
-  if (loading || !profile) {
+  if (loading) {
     return (
       <main className="p-8">
         Loading profile...
+      </main>
+    );
+  }
+
+  if (!profile) {
+    return (
+      <main className="min-h-screen bg-amber-50 px-6 py-10">
+        <div className="mx-auto max-w-5xl rounded-xl border border-red-200 bg-red-50 p-4 text-red-700" role="alert">
+          {errorMessage ?? "We couldn't load your profile. Please try again."}
+        </div>
       </main>
     );
   }
@@ -195,8 +314,13 @@ export function UserProfilePage() {
         </header>
 
         {errorMessage && (
-          <div className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
+          <div role="alert" className="rounded-xl border border-red-200 bg-red-50 p-4 text-red-700">
             {errorMessage}
+          </div>
+        )}
+        {successMessage && (
+          <div role="status" aria-live="polite" className="rounded-xl border border-emerald-200 bg-emerald-50 p-4 font-medium text-emerald-800">
+            {successMessage}
           </div>
         )}
 
@@ -227,12 +351,13 @@ export function UserProfilePage() {
               </p>
 
               <label className="mt-4 inline-block cursor-pointer rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white hover:bg-emerald-900">
-                Upload photo
+                {uploadingPhoto ? "Uploading photo..." : "Upload photo"}
 
                 <input
                   type="file"
                   accept="image/png,image/jpeg"
                   onChange={handlePhotoChange}
+                  disabled={uploadingPhoto}
                   className="hidden"
                 />
               </label>
@@ -285,8 +410,8 @@ export function UserProfilePage() {
               className="rounded-xl border px-4 py-3"
             />
 
-            <button className="rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white sm:col-span-2">
-              Save profile
+            <button type="submit" disabled={saving} className="rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60 sm:col-span-2">
+              {saving ? "Saving..." : "Save profile"}
             </button>
           </form>
         </section>
@@ -297,6 +422,11 @@ export function UserProfilePage() {
           </h2>
 
           <div className="mt-6 grid gap-4 md:grid-cols-2">
+            {addresses.length === 0 && (
+              <p className="rounded-2xl border border-dashed border-gray-300 p-5 text-sm text-gray-600 md:col-span-2">
+                You haven't saved a delivery address yet. Add one below to make checkout quicker.
+              </p>
+            )}
             {addresses.map((address) => (
               <article
                 key={address.id}
@@ -341,25 +471,38 @@ export function UserProfilePage() {
                   {address.phone}
                 </p>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    void handleDeleteAddress(
-                      address.id
-                    )
-                  }
-                  className="mt-4 text-sm font-semibold text-red-600"
-                >
-                  Delete
-                </button>
+                <div className="mt-4 flex gap-4">
+                  <button
+                    type="button"
+                    disabled={savingAddress || deletingAddressId !== null}
+                    onClick={() => handleEditAddress(address)}
+                    className="text-sm font-semibold text-emerald-800 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    Edit
+                  </button>
+                  <button
+                    type="button"
+                    disabled={
+                      deletingAddressId === address.id || savingAddress
+                    }
+                    onClick={() => void handleDeleteAddress(address.id)}
+                    className="text-sm font-semibold text-red-600 disabled:cursor-not-allowed disabled:opacity-50"
+                  >
+                    {deletingAddressId === address.id ? "Deleting..." : "Delete"}
+                  </button>
+                </div>
               </article>
             ))}
           </div>
 
           <form
+            ref={addressFormRef}
             onSubmit={handleAddressSubmit}
             className="mt-8 grid gap-4 sm:grid-cols-2"
           >
+            <h3 className="text-lg font-bold sm:col-span-2">
+              {editingAddressId === null ? "Add a delivery address" : "Edit delivery address"}
+            </h3>
             {[
               ["recipientName", "Recipient name"],
               ["phone", "Phone"],
@@ -412,9 +555,31 @@ export function UserProfilePage() {
               Make this my default address
             </label>
 
-            <button className="rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white sm:col-span-2">
-              Add address
-            </button>
+            <div className="flex flex-col gap-3 sm:col-span-2 sm:flex-row">
+              <button
+                type="submit"
+                disabled={savingAddress}
+                className="flex-1 rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white disabled:cursor-not-allowed disabled:opacity-60"
+              >
+                {savingAddress
+                  ? editingAddressId === null
+                    ? "Saving address..."
+                    : "Updating address..."
+                  : editingAddressId === null
+                    ? "Add address"
+                    : "Save address changes"}
+              </button>
+              {editingAddressId !== null && (
+                <button
+                  type="button"
+                  disabled={savingAddress}
+                  onClick={cancelAddressEdit}
+                  className="rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700 disabled:cursor-not-allowed disabled:opacity-60"
+                >
+                  Cancel
+                </button>
+              )}
+            </div>
           </form>
         </section>
       </div>

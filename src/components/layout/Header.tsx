@@ -8,8 +8,11 @@ export function Header() {
   const { itemCount } = useCart();
 
   function handleLogout() {
-    logout();
-    navigate("/login", { replace: true });
+    void logout()
+      .then(() => {
+        navigate("/login", { replace: true });
+      })
+      .catch(() => navigate("/login", { replace: true }));
   }
 
   return (

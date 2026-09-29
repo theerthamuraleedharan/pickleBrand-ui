@@ -26,6 +26,10 @@ export function RegisterPage() {
   const {
     authenticated,
     completeAuthentication,
+    oidcEnabled,
+    startLogin,
+    authError,
+    logout,
   } = useAuth();
 
   const [firstName, setFirstName] = useState("");
@@ -115,6 +119,12 @@ export function RegisterPage() {
                 Register to begin shopping with us.
               </p>
             </div>
+
+            {oidcEnabled && authError && (
+              <div role="alert" className="mb-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+                {authError}
+              </div>
+            )}
 
             <form
               onSubmit={handleSubmit}
@@ -210,6 +220,32 @@ export function RegisterPage() {
                   : "Create account"}
               </button>
             </form>
+
+            {oidcEnabled && (
+              <>
+                <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  or
+                  <span className="h-px flex-1 bg-gray-200" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void startLogin("/products").catch(() => undefined)}
+                  className="w-full rounded-xl border border-emerald-800 px-5 py-3.5 font-bold text-emerald-900 transition hover:bg-emerald-50"
+                >
+                  Use an existing Keycloak account
+                </button>
+                {authError && (
+                  <button
+                    type="button"
+                    onClick={() => void logout().catch(() => undefined)}
+                    className="mt-3 w-full rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700"
+                  >
+                    Sign out of Keycloak / change account
+                  </button>
+                )}
+              </>
+            )}
 
             <p className="mt-6 text-center text-sm text-gray-500">
               Already have an account?{" "}

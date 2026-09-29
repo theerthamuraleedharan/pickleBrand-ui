@@ -74,6 +74,18 @@ export async function createAddress(
   return response.data;
 }
 
+export async function updateAddress(
+  addressId: number,
+  request: AddressRequest
+): Promise<Address> {
+  const response = await apiClient.put<Address>(
+    `/profile/addresses/${addressId}`,
+    request
+  );
+
+  return response.data;
+}
+
 export async function deleteAddress(
   addressId: number
 ): Promise<void> {

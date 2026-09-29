@@ -16,6 +16,7 @@ import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/AdminDashboard";
 import { AdminProductsPage } from "./pages/AdminProductPages";
 import { AdminProductFormPage } from "./pages/AdminProductFormPage";
+import { OidcCallbackPage } from "./pages/OidcCallbackPage";
 
 function App() {
   return (
@@ -30,6 +31,7 @@ function App() {
         path="/login"
         element={<LoginPage />}
       />
+      <Route path="/oidc/callback" element={<OidcCallbackPage />} />
 
       <Route
         path="/register"

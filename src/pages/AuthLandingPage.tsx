@@ -17,6 +17,8 @@ export function AuthLandingPage() {
     authenticated,
     completeAuthentication,
     user,
+    oidcEnabled,
+    startLogin,
   } = useAuth();
 
   const [mode, setMode] =
@@ -282,6 +284,16 @@ export function AuthLandingPage() {
                     : "Create account"}
               </button>
             </form>
+
+            {oidcEnabled && (
+              <button
+                type="button"
+                onClick={() => void startLogin().catch(() => undefined)}
+                className="mt-5 w-full rounded-xl border border-emerald-800 px-5 py-3.5 font-bold text-emerald-900 transition hover:bg-emerald-50"
+              >
+                Continue with Keycloak
+              </button>
+            )}
           </div>
         </div>
       </section>

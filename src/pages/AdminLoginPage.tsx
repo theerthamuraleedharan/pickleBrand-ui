@@ -3,19 +3,26 @@ import {
   type FormEvent,
 } from "react";
 
-import { Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { login } from "../api/authApi";
+import { sanitizeInternalRoute } from "../auth/oidc";
 import { useAuth } from "../contexts/AuthContext";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 export function AdminLoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
 
   const {
     authenticated,
     completeAuthentication,
     user,
+    oidcEnabled,
+    authStatus,
+    authError,
+    startLogin,
+    logout,
   } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -27,6 +34,10 @@ export function AdminLoginPage() {
 
   const [submitting, setSubmitting] =
     useState(false);
+  const returnTo =
+    sanitizeInternalRoute(
+      (location.state as { from?: unknown } | null)?.from,
+    ) ?? "/admin";
 
   if (authenticated) {
     return (
@@ -73,6 +84,16 @@ export function AdminLoginPage() {
     }
   }
 
+  if (oidcEnabled && authStatus === "loading") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-emerald-950 px-6">
+        <p role="status" className="font-semibold text-white">
+          Checking your sign-in session…
+        </p>
+      </main>
+    );
+  }
+
   return (
     <main className="flex min-h-screen items-center justify-center bg-emerald-950 px-6 py-12">
       <div className="w-full max-w-md rounded-3xl bg-white p-8 shadow-2xl">
@@ -93,6 +114,12 @@ export function AdminLoginPage() {
             Sign in to manage the store.
           </p>
         </div>
+
+        {oidcEnabled && authError && (
+          <div role="alert" className="mt-5 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
+            {authError}
+          </div>
+        )}
 
         <form
           onSubmit={handleSubmit}
@@ -151,6 +178,36 @@ export function AdminLoginPage() {
               : "Sign in as administrator"}
           </button>
         </form>
+        {oidcEnabled && (
+          <>
+            <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+              <span className="h-px flex-1 bg-gray-200" />
+              or
+              <span className="h-px flex-1 bg-gray-200" />
+            </div>
+            <button
+              type="button"
+              onClick={() => void startLogin(returnTo).catch(() => undefined)}
+              className="w-full rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900 transition hover:bg-emerald-50"
+            >
+              Sign in with Keycloak
+            </button>
+            {authError && (
+              <button
+                type="button"
+                onClick={() => void logout().catch(() => undefined)}
+                className="mt-3 w-full rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700"
+              >
+                Sign out of Keycloak / change account
+              </button>
+            )}
+          </>
+        )}
+        <p className="mt-5 text-center text-sm">
+          <Link to="/login" className="font-semibold text-emerald-800">
+            Customer sign-in
+          </Link>
+        </p>
       </div>
     </main>
   );

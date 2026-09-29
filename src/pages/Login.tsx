@@ -1,16 +1,23 @@
 import { useState, type FormEvent } from "react";
-import { Link, Navigate, useNavigate } from "react-router-dom";
+import { Link, Navigate, useLocation, useNavigate } from "react-router-dom";
 
 import { login } from "../api/authApi";
 import { useAuth } from "../contexts/AuthContext";
+import { sanitizeInternalRoute } from "../auth/oidc";
 import { getApiErrorMessage } from "../utils/getApiErrorMessage";
 
 export function LoginPage() {
   const navigate = useNavigate();
+  const location = useLocation();
   const {
     authenticated,
     completeAuthentication,
     user,
+    oidcEnabled,
+    authStatus,
+    authError,
+    startLogin,
+    logout,
   } = useAuth();
 
   const [email, setEmail] = useState("");
@@ -18,6 +25,9 @@ export function LoginPage() {
   const [loading, setLoading] = useState(false);
   const [errorMessage, setErrorMessage] =
     useState<string | null>(null);
+  const returnTo = sanitizeInternalRoute(
+    (location.state as { from?: unknown } | null)?.from,
+  );
 
   if (authenticated) {
     return (
@@ -54,6 +64,16 @@ export function LoginPage() {
     } finally {
       setLoading(false);
     }
+  }
+
+  if (oidcEnabled && authStatus === "loading") {
+    return (
+      <main className="flex min-h-screen items-center justify-center bg-amber-50">
+        <p role="status" className="font-semibold text-emerald-900">
+          Checking your sign-in session…
+        </p>
+      </main>
+    );
   }
 
   return (
@@ -112,6 +132,11 @@ export function LoginPage() {
               onSubmit={handleSubmit}
               className="space-y-5"
             >
+              {oidcEnabled && authError && (
+                <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
+                  {authError}
+                </div>
+              )}
               <label className="block">
                 <span className="mb-2 block text-sm font-semibold text-gray-700">
                   Email
@@ -164,6 +189,32 @@ export function LoginPage() {
                 {loading ? "Please wait..." : "Login"}
               </button>
             </form>
+
+            {oidcEnabled && (
+              <>
+                <div className="my-5 flex items-center gap-3 text-xs font-semibold uppercase tracking-wide text-gray-400">
+                  <span className="h-px flex-1 bg-gray-200" />
+                  or
+                  <span className="h-px flex-1 bg-gray-200" />
+                </div>
+                <button
+                  type="button"
+                  onClick={() => void startLogin(returnTo).catch(() => undefined)}
+                  className="w-full rounded-xl border border-emerald-800 px-5 py-3.5 font-bold text-emerald-900 transition hover:bg-emerald-50"
+                >
+                  Sign in with Keycloak
+                </button>
+                {authError && (
+                  <button
+                    type="button"
+                    onClick={() => void logout().catch(() => undefined)}
+                    className="mt-3 w-full rounded-xl border border-gray-300 px-5 py-3 font-semibold text-gray-700"
+                  >
+                    Sign out of Keycloak / change account
+                  </button>
+                )}
+              </>
+            )}
 
             <p className="mt-6 text-center text-sm text-gray-500">
               New to Sujus Pickle?{" "}

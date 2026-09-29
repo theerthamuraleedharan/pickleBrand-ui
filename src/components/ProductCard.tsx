@@ -35,7 +35,7 @@ export function ProductCard({
             role="img"
             aria-label="Pickle jar"
           >
-            🫙
+            
           </span>
         </div>
       )}

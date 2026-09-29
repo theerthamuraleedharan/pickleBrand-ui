@@ -20,11 +20,14 @@ export function AdminHeader({
 }: AdminHeaderProps) {
   const location = useLocation();
   const navigate = useNavigate();
-  const { logout, user } = useAuth();
+  const { logout, user, oidcEnabled } = useAuth();
 
   function handleLogout() {
-    logout();
-    navigate("/admin/login", { replace: true });
+    void logout()
+      .then(() => {
+        navigate(oidcEnabled ? "/login" : "/admin/login", { replace: true });
+      })
+      .catch(() => navigate(oidcEnabled ? "/login" : "/admin/login", { replace: true }));
   }
 
   function getNavClass(path: string): string {
