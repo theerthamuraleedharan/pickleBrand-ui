@@ -150,6 +150,58 @@ describe("protected API client", () => {
     expect(onSessionExpired).toHaveBeenCalledOnce();
   });
 
+  it("clears a local session after a protected request returns 401", async () => {
+    const onSessionExpired = vi.fn();
+    const client = createApiClient({
+      getOidcToken: vi.fn(),
+      getLocalToken: () => "expired-local-token",
+      getAuthMethod: () => "local",
+      onSessionExpired,
+    });
+
+    await expect(
+      client.get("/admin/dashboard", {
+        adapter: async (config) => {
+          throw new AxiosError("Unauthorized", undefined, config, undefined, {
+            config,
+            data: { message: "Please login with valid access token" },
+            headers: {},
+            status: 401,
+            statusText: "Unauthorized",
+          });
+        },
+      }),
+    ).rejects.toBeDefined();
+
+    expect(onSessionExpired).toHaveBeenCalledOnce();
+  });
+
+  it("does not expire a session when an unauthenticated request returns 401", async () => {
+    const onSessionExpired = vi.fn();
+    const client = createApiClient({
+      getOidcToken: vi.fn(),
+      getLocalToken: () => null,
+      getAuthMethod: () => "none",
+      onSessionExpired,
+    });
+
+    await expect(
+      client.get("/public-resource", {
+        adapter: async (config) => {
+          throw new AxiosError("Unauthorized", undefined, config, undefined, {
+            config,
+            data: {},
+            headers: {},
+            status: 401,
+            statusText: "Unauthorized",
+          });
+        },
+      }),
+    ).rejects.toBeDefined();
+
+    expect(onSessionExpired).not.toHaveBeenCalled();
+  });
+
   it("clears application authentication when a token refresh fails", async () => {
     const onSessionExpired = vi.fn();
     const client = createApiClient({

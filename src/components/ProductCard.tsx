@@ -11,8 +11,7 @@ const priceFormatter = new Intl.NumberFormat("en-IN", {
   currency: "INR",
 });
 
-export function ProductCard({
-  product,
+export function ProductCard({product,
 }: ProductCardProps) {
   const { items, addItem } = useCart();
   const quantityInCart = items.find(item => item.product.id === product.id)?.quantity ?? 0;
@@ -21,17 +20,17 @@ export function ProductCard({
    const imageUrl = resolveImageUrl(product.imageUrl);
 
   return (
-    <article className="overflow-hidden rounded-2xl border border-amber-100 bg-white shadow-sm transition hover:-translate-y-1 hover:shadow-lg">
+    <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_5px_22px_-12px_rgba(15,23,42,0.25)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl">
       {imageUrl ? (
         <img
           src={imageUrl}
           alt={product.name}
-          className="h-52 w-full object-cover"
+          className="h-56 w-full bg-slate-100 object-cover transition duration-500 group-hover:scale-[1.03]"
         />
       ) : (
-        <div className="flex h-52 items-center justify-center bg-gradient-to-br from-amber-100 to-orange-200">
+        <div className="flex h-56 items-center justify-center bg-gradient-to-br from-amber-50 via-orange-50 to-emerald-100">
           <span
-            className="text-6xl"
+            className="text-6xl drop-shadow-sm"
             role="img"
             aria-label="Pickle jar"
           >
@@ -40,10 +39,10 @@ export function ProductCard({
         </div>
       )}
 
-      <div className="p-5">
+      <div className="flex flex-1 flex-col p-5 sm:p-6">
         <div className="flex items-start justify-between gap-4">
           <div>
-            <h2 className="text-xl font-bold text-gray-900">
+            <h2 className="text-lg font-bold tracking-tight text-slate-900 sm:text-xl">
               {product.name}
             </h2>
 
@@ -52,22 +51,22 @@ export function ProductCard({
             </p>
           </div>
 
-          <span className="rounded-full bg-orange-100 px-3 py-1 text-xs font-semibold text-orange-700">
+          <span className="shrink-0 rounded-full bg-amber-50 px-3 py-1 text-[11px] font-bold uppercase tracking-wide text-amber-800 ring-1 ring-amber-200">
             {product.spiceLevel}
           </span>
         </div>
 
-        <p className="mt-4 line-clamp-3 min-h-18 text-sm leading-6 text-gray-600">
+        <p className="mt-4 line-clamp-3 min-h-18 text-sm leading-6 text-slate-600">
           {product.description}
         </p>
 
-        <p className="mt-4 min-h-18 text-sm leading-6 text-gray-600">
-          {product.category}
+        <p className="mt-2 text-xs font-semibold uppercase tracking-[0.12em] text-slate-400">
+          {product.category.replace("_", " ")} · {product.weightGrams} g
         </p>
 
-        <div className="mt-5 flex items-end justify-between gap-4">
+        <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-5">
           <div>
-            <p className="text-2xl font-bold text-emerald-700">
+            <p className="text-xl font-black tracking-tight text-emerald-900 sm:text-2xl">
               {priceFormatter.format(product.price)}
             </p>
 
@@ -75,7 +74,7 @@ export function ProductCard({
               className={`mt-1 text-sm ${
                 outOfStock
                   ? "text-red-600"
-                  : "text-gray-500"
+                    : "text-slate-500"
               }`}
             >
               {outOfStock
@@ -88,7 +87,7 @@ export function ProductCard({
             type="button"
             disabled={outOfStock || atLimit || product.id === null}
             onClick={() => addItem(product)}
-            className="rounded-xl bg-emerald-700 px-4 py-2 font-semibold text-white transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:bg-gray-300"
+            className="rounded-full bg-emerald-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
           >
             {outOfStock ? "Unavailable" : atLimit ? "Max in cart" : "Add to cart"}
           </button>

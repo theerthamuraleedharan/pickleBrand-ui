@@ -36,7 +36,7 @@ export function AdminHeader({
         ? location.pathname === path
         : location.pathname.startsWith(path);
 
-    return `rounded-xl px-3 py-2 text-sm font-semibold transition ${
+    return `rounded-xl px-4 py-2.5 text-sm font-semibold transition ${
       active
         ? "bg-white text-emerald-950"
         : "text-emerald-100 hover:bg-white/10 hover:text-white"
@@ -44,14 +44,14 @@ export function AdminHeader({
   }
 
   return (
-    <header className="bg-emerald-950 px-6 py-6 text-white">
+    <header className="border-b border-emerald-900 bg-emerald-950 px-5 py-6 text-white shadow-sm sm:px-8">
       <div className="mx-auto flex max-w-7xl flex-col gap-5 lg:flex-row lg:items-center lg:justify-between">
         <div>
           <p className="text-sm font-bold uppercase tracking-[0.25em] text-amber-300">
             Sujus Pickle
           </p>
 
-          <h1 className="mt-2 text-3xl font-black">
+          <h1 className="mt-2 text-3xl font-black tracking-tight">
             {title}
           </h1>
 
@@ -63,7 +63,7 @@ export function AdminHeader({
         </div>
 
         <div className="flex flex-col gap-4 sm:flex-row sm:items-center">
-          <nav className="flex rounded-2xl bg-white/10 p-1">
+          <nav aria-label="Admin navigation" className="flex rounded-2xl bg-white/10 p-1">
             <Link
               to="/admin"
               className={getNavClass("/admin")}
@@ -76,6 +76,12 @@ export function AdminHeader({
               className={getNavClass("/admin/products")}
             >
               Products
+            </Link>
+            <Link
+              to="/admin/planner"
+              className={getNavClass("/admin/planner")}
+            >
+              Planner
             </Link>
           </nav>
 

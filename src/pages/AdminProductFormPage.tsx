@@ -157,26 +157,27 @@ export function AdminProductFormPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-slate-50">
       <AdminHeader
         title={editing ? "Edit product" : "Add product"}
         subtitle="Update catalogue details, pricing, stock, and product photos."
       />
 
-      <section className="mx-auto max-w-3xl px-6 py-10">
+      <section className="mx-auto max-w-3xl px-5 py-10 sm:px-8 lg:py-14">
         <button
           type="button"
           onClick={() =>
             navigate("/admin/products")
           }
-          className="mb-5 font-semibold text-emerald-700"
+          className="mb-5 inline-flex rounded-lg py-2 font-semibold text-emerald-800 transition hover:text-emerald-950"
         >
           ← Products
         </button>
 
-        <div className="rounded-3xl bg-white p-8 shadow-sm">
+        <div className="rounded-3xl border border-slate-200 bg-white p-6 shadow-sm sm:p-8">
 
-          <h1 className="text-3xl font-black">
+          <p className="text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">Catalogue management</p>
+          <h1 className="mt-2 text-3xl font-black tracking-tight text-slate-900">
             {editing
               ? "Edit product"
               : "Add product"}
@@ -204,7 +205,7 @@ export function AdminProductFormPage() {
               }
               placeholder="Product name"
               required
-              className="w-full rounded-xl border px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3"
             />
 
             <textarea
@@ -219,7 +220,7 @@ export function AdminProductFormPage() {
               placeholder="Description"
               required
               rows={5}
-              className="w-full rounded-xl border px-4 py-3"
+              className="w-full rounded-xl border border-slate-300 px-4 py-3"
             />
 
             <div className="grid gap-5 sm:grid-cols-2">
@@ -244,7 +245,7 @@ export function AdminProductFormPage() {
                     })
                   }
                   required
-                  className="w-full rounded-xl border px-4 py-3"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 />
               </label>
 
@@ -269,7 +270,7 @@ export function AdminProductFormPage() {
                     })
                   }
                   required
-                  className="w-full rounded-xl border px-4 py-3"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 />
               </label>
 
@@ -294,7 +295,7 @@ export function AdminProductFormPage() {
                     })
                   }
                   required
-                  className="w-full rounded-xl border px-4 py-3"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 />
               </label>
 
@@ -314,7 +315,7 @@ export function AdminProductFormPage() {
                           AdminProductRequest["category"],
                     })
                   }
-                  className="w-full rounded-xl border px-4 py-3"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 >
                   <option value="VEG">
                     Veg
@@ -348,7 +349,7 @@ export function AdminProductFormPage() {
                           AdminProductRequest["spiceLevel"],
                     })
                   }
-                  className="w-full rounded-xl border px-4 py-3"
+                  className="w-full rounded-xl border border-slate-300 px-4 py-3"
                 >
                   <option value="MILD">
                     Mild
@@ -407,7 +408,7 @@ export function AdminProductFormPage() {
             <button
               type="submit"
               disabled={saving}
-              className="w-full rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white disabled:opacity-60"
+              className="w-full rounded-xl bg-emerald-950 px-5 py-3 font-bold text-white shadow-sm transition hover:bg-emerald-800 disabled:opacity-60"
             >
               {saving
                 ? "Saving..."

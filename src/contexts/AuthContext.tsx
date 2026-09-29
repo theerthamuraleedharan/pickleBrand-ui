@@ -58,22 +58,32 @@ export function AuthProvider({ children }: PropsWithChildren) {
   );
   const [authError, setAuthError] = useState<string | null>(null);
   const logoutInProgress = useRef(false);
+  const sessionExpired = useRef(false);
+  const skipOidcAutoInit = useRef(false);
 
   useEffect(() => {
-    if (!oidcEnabled || hasLocalSession) return;
+    setOidcSessionFailureHandler(() => {
+      if (logoutInProgress.current || sessionExpired.current) return;
+
+      sessionExpired.current = true;
+      skipOidcAutoInit.current = true;
+      clearAuthentication();
+      clearOidcApplicationToken();
+      setHasLocalSession(false);
+      setActiveAuthMethod("none");
+      setUser(null);
+      setAuthStatus("expired");
+      setAuthError("Your session has expired. Sign in again to continue.");
+    });
+
+    return () => setOidcSessionFailureHandler(null);
+  }, []);
+
+  useEffect(() => {
+    if (!oidcEnabled || hasLocalSession || skipOidcAutoInit.current) return;
 
     let mounted = true;
     setActiveAuthMethod("none");
-    setOidcSessionFailureHandler(() => {
-      if (logoutInProgress.current) return;
-      clearOidcApplicationToken();
-      setActiveAuthMethod("none");
-      if (mounted) {
-        setUser(null);
-        setAuthStatus("expired");
-        setAuthError("Your session expired. Sign in again to continue.");
-      }
-    });
 
     async function initializeAuthentication() {
       try {
@@ -119,12 +129,12 @@ export function AuthProvider({ children }: PropsWithChildren) {
     void initializeAuthentication();
     return () => {
       mounted = false;
-      setOidcSessionFailureHandler(null);
     };
   }, [hasLocalSession, oidcEnabled]);
 
   const completeAuthentication = useCallback(
     (response: AuthResponse) => {
+      sessionExpired.current = false;
       saveAuthentication(response);
       setActiveAuthMethod("local");
       setHasLocalSession(true);
@@ -140,6 +150,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
       if (!oidcEnabled) {
         throw new Error("Keycloak sign-in is only available in OIDC mode.");
       }
+      sessionExpired.current = false;
+      skipOidcAutoInit.current = false;
       setAuthError(null);
       try {
         clearAuthentication();
@@ -158,6 +170,8 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
   const logout = useCallback(async () => {
     const activeMethod = getActiveAuthMethod();
+    sessionExpired.current = false;
+    skipOidcAutoInit.current = false;
     setUser(null);
     setAuthError(null);
     if (activeMethod !== "oidc") {

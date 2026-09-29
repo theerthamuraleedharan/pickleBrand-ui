@@ -49,15 +49,16 @@ export function createApiClient({
   client.interceptors.response.use(
     (response) => response,
     (error: unknown) => {
-      if (getAuthMethod() !== "oidc" || !axios.isAxiosError(error)) {
+      if (!axios.isAxiosError(error)) {
         return Promise.reject(error);
       }
 
+      const authMethod = getAuthMethod();
       const url = error.config?.url?.split("?")[0].replace(/\/+$/, "");
       if (
+        authMethod !== "none" &&
         error.response?.status === 401 &&
-        url !== "/auth/me" &&
-        !url?.endsWith("/auth/me")
+        !(authMethod === "oidc" && (url === "/auth/me" || url?.endsWith("/auth/me")))
       ) {
         onSessionExpired?.();
       }

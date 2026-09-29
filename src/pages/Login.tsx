@@ -77,10 +77,10 @@ export function LoginPage() {
   }
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
-      <section className="relative hidden overflow-hidden bg-emerald-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-amber-400/20" />
-        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-orange-400/20" />
+    <main className="grid min-h-screen bg-[#f7f7f2] lg:grid-cols-2">
+      <section className="relative hidden overflow-hidden bg-emerald-950 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full border border-white/10 bg-emerald-700/30" />
+        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full border border-white/10 bg-amber-400/10" />
 
         <div className="relative">
           <p className="text-xl font-black tracking-wide">
@@ -89,13 +89,13 @@ export function LoginPage() {
         </div>
 
         <div className="relative max-w-xl">
-          <p className="font-semibold uppercase tracking-[0.25em] text-amber-300">
-            Traditional homemade flavour
+          <p className="font-semibold uppercase tracking-[0.25em] text-amber-200">
+            From our kitchen to yours
           </p>
 
-          <h1 className="mt-5 text-5xl font-black leading-tight">
+          <h1 className="mt-5 text-5xl font-black leading-[1.08] tracking-tight xl:text-6xl">
             Authentic pickles,
-            prepared with care.
+            <span className="block text-amber-200">prepared with care.</span>
           </h1>
 
           <p className="mt-6 text-lg leading-8 text-emerald-100">
@@ -104,12 +104,12 @@ export function LoginPage() {
           </p>
         </div>
 
-        <p className="relative text-sm text-emerald-200">
-          Fresh ingredients - Authentic spices - Homemade
+        <p className="relative text-sm font-medium text-emerald-200">
+          Thoughtfully prepared · Authentically delicious
         </p>
       </section>
 
-      <section className="flex items-center justify-center bg-amber-50 px-6 py-12">
+      <section className="flex items-center justify-center bg-[#f7f7f2] px-5 py-10 sm:px-8 lg:px-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <p className="text-2xl font-black text-emerald-900">
@@ -117,13 +117,30 @@ export function LoginPage() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-white p-7 shadow-xl shadow-emerald-950/5 sm:p-9">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white p-7 shadow-[0_24px_80px_-35px_rgba(15,23,42,0.28)] sm:p-9">
+            {authStatus === "expired" && (
+              <div role="status" className="mb-6 flex gap-3 rounded-2xl border border-amber-200 bg-amber-50 p-4 text-amber-950">
+                <span className="mt-0.5 flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-white text-amber-700" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" className="h-4 w-4">
+                    <circle cx="12" cy="12" r="9" />
+                    <path d="M12 8v4m0 4h.01" />
+                  </svg>
+                </span>
+                <span>
+                  <span className="block text-sm font-bold">Your session has ended</span>
+                  <span className="mt-1 block text-sm leading-5 text-amber-900">
+                    Sign in again to continue. Your account and cart are safe.
+                  </span>
+                </span>
+              </div>
+            )}
             <div className="mb-7">
-              <h2 className="text-3xl font-black text-gray-900">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">Customer account</p>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900">
                 Welcome back
               </h2>
 
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-slate-600">
                 Login to explore our homemade pickles.
               </p>
             </div>
@@ -132,7 +149,7 @@ export function LoginPage() {
               onSubmit={handleSubmit}
               className="space-y-5"
             >
-              {oidcEnabled && authError && (
+              {oidcEnabled && authError && authStatus !== "expired" && (
                 <div role="alert" className="rounded-xl border border-red-200 bg-red-50 px-4 py-3 text-sm text-red-700">
                   {authError}
                 </div>
@@ -151,7 +168,7 @@ export function LoginPage() {
                   required
                   maxLength={255}
                   autoComplete="email"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   placeholder="name@example.com"
                 />
               </label>
@@ -170,7 +187,7 @@ export function LoginPage() {
                   required
                   maxLength={72}
                   autoComplete="current-password"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   placeholder="Minimum 8 characters"
                 />
               </label>
@@ -184,7 +201,7 @@ export function LoginPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-emerald-800 px-5 py-3.5 font-bold text-white transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-emerald-950 px-5 py-3.5 font-bold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading ? "Please wait..." : "Login"}
               </button>
@@ -200,7 +217,7 @@ export function LoginPage() {
                 <button
                   type="button"
                   onClick={() => void startLogin(returnTo).catch(() => undefined)}
-                  className="w-full rounded-xl border border-emerald-800 px-5 py-3.5 font-bold text-emerald-900 transition hover:bg-emerald-50"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-5 py-3.5 font-bold text-slate-800 transition hover:border-emerald-700 hover:bg-emerald-50"
                 >
                   Sign in with Keycloak
                 </button>
@@ -216,7 +233,7 @@ export function LoginPage() {
               </>
             )}
 
-            <p className="mt-6 text-center text-sm text-gray-500">
+            <p className="mt-6 text-center text-sm text-slate-600">
               New to Sujus Pickle?{" "}
               <Link
                 to="/register"

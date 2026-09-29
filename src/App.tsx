@@ -16,6 +16,7 @@ import { AdminLoginPage } from "./pages/AdminLoginPage";
 import { AdminDashboardPage } from "./pages/AdminDashboard";
 import { AdminProductsPage } from "./pages/AdminProductPages";
 import { AdminProductFormPage } from "./pages/AdminProductFormPage";
+import { ProductionPlannerPage } from "./pages/ProductionPlannerPage";
 import { OidcCallbackPage } from "./pages/OidcCallbackPage";
 
 function App() {
@@ -75,6 +76,15 @@ function App() {
         element={
           <AdminRoute>
             <AdminProductsPage />
+          </AdminRoute>
+        }
+      />
+
+      <Route
+        path="/admin/planner"
+        element={
+          <AdminRoute>
+            <ProductionPlannerPage />
           </AdminRoute>
         }
       />

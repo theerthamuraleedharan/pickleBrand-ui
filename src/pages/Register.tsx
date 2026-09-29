@@ -70,10 +70,10 @@ export function RegisterPage() {
   }
 
   return (
-    <main className="grid min-h-screen lg:grid-cols-2">
-      <section className="relative hidden overflow-hidden bg-emerald-950 p-12 text-white lg:flex lg:flex-col lg:justify-between">
-        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full bg-amber-400/20" />
-        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full bg-orange-400/20" />
+    <main className="grid min-h-screen bg-[#f7f7f2] lg:grid-cols-2">
+      <section className="relative hidden overflow-hidden bg-emerald-950 p-12 text-white lg:flex lg:flex-col lg:justify-between xl:p-16">
+        <div className="absolute -right-32 -top-32 h-96 w-96 rounded-full border border-white/10 bg-emerald-700/30" />
+        <div className="absolute -bottom-32 -left-32 h-96 w-96 rounded-full border border-white/10 bg-amber-400/10" />
 
         <div className="relative">
           <p className="text-xl font-black tracking-wide">
@@ -82,26 +82,26 @@ export function RegisterPage() {
         </div>
 
         <div className="relative max-w-xl">
-          <p className="font-semibold uppercase tracking-[0.25em] text-amber-300">
-            Traditional homemade flavour
+          <p className="font-semibold uppercase tracking-[0.25em] text-amber-200">
+            From our kitchen to yours
           </p>
 
-          <h1 className="mt-5 text-5xl font-black leading-tight">
-            Create your pickle pantry.
+          <h1 className="mt-5 text-5xl font-black leading-[1.08] tracking-tight xl:text-6xl">
+            Your next
+            <span className="block text-amber-200">favourite jar awaits.</span>
           </h1>
 
-          <p className="mt-6 text-lg leading-8 text-emerald-100">
-            Register to shop mango, lemon, garlic and seasonal
-            pickles made from traditional family recipes.
+          <p className="mt-6 max-w-lg text-lg leading-8 text-emerald-100">
+            Create an account to discover homemade mango, lemon, garlic and seasonal pickles.
           </p>
         </div>
 
-        <p className="relative text-sm text-emerald-200">
-          Fresh ingredients - Authentic spices - Homemade
+        <p className="relative text-sm font-medium text-emerald-200">
+          Thoughtfully prepared · Authentically delicious
         </p>
       </section>
 
-      <section className="flex items-center justify-center bg-amber-50 px-6 py-12">
+      <section className="flex items-center justify-center bg-[#f7f7f2] px-5 py-10 sm:px-8 lg:px-12">
         <div className="w-full max-w-md">
           <div className="mb-8 lg:hidden">
             <p className="text-2xl font-black text-emerald-900">
@@ -109,13 +109,14 @@ export function RegisterPage() {
             </p>
           </div>
 
-          <div className="rounded-3xl bg-white p-7 shadow-xl shadow-emerald-950/5 sm:p-9">
+          <div className="rounded-[2rem] border border-slate-200/80 bg-white p-7 shadow-[0_24px_80px_-35px_rgba(15,23,42,0.28)] sm:p-9">
             <div className="mb-7">
-              <h2 className="text-3xl font-black text-gray-900">
+              <p className="mb-2 text-xs font-bold uppercase tracking-[0.18em] text-emerald-800">Join our pantry</p>
+              <h2 className="text-3xl font-black tracking-tight text-slate-900">
                 Create your account
               </h2>
 
-              <p className="mt-2 text-gray-500">
+              <p className="mt-2 text-slate-600">
                 Register to begin shopping with us.
               </p>
             </div>
@@ -144,7 +145,7 @@ export function RegisterPage() {
                     required
                     maxLength={100}
                     autoComplete="given-name"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   />
                 </label>
 
@@ -161,7 +162,7 @@ export function RegisterPage() {
                     required
                     maxLength={100}
                     autoComplete="family-name"
-                    className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                    className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   />
                 </label>
               </div>
@@ -180,7 +181,7 @@ export function RegisterPage() {
                   required
                   maxLength={255}
                   autoComplete="email"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   placeholder="name@example.com"
                 />
               </label>
@@ -199,7 +200,7 @@ export function RegisterPage() {
                   required
                   maxLength={72}
                   autoComplete="new-password"
-                  className="w-full rounded-xl border border-gray-300 px-4 py-3 outline-none transition focus:border-emerald-600 focus:ring-4 focus:ring-emerald-100"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-4 py-3.5 text-slate-900 placeholder:text-slate-400"
                   placeholder="Minimum 8 characters"
                 />
               </label>
@@ -213,7 +214,7 @@ export function RegisterPage() {
               <button
                 type="submit"
                 disabled={loading}
-                className="w-full rounded-xl bg-emerald-800 px-5 py-3.5 font-bold text-white transition hover:bg-emerald-900 disabled:cursor-not-allowed disabled:opacity-60"
+                className="w-full rounded-xl bg-emerald-950 px-5 py-3.5 font-bold text-white shadow-sm transition hover:bg-emerald-800 disabled:cursor-not-allowed disabled:opacity-60"
               >
                 {loading
                   ? "Please wait..."
@@ -231,7 +232,7 @@ export function RegisterPage() {
                 <button
                   type="button"
                   onClick={() => void startLogin("/products").catch(() => undefined)}
-                  className="w-full rounded-xl border border-emerald-800 px-5 py-3.5 font-bold text-emerald-900 transition hover:bg-emerald-50"
+                  className="w-full rounded-xl border border-slate-300 bg-white px-5 py-3.5 font-bold text-slate-800 transition hover:border-emerald-700 hover:bg-emerald-50"
                 >
                   Use an existing Keycloak account
                 </button>
@@ -247,7 +248,7 @@ export function RegisterPage() {
               </>
             )}
 
-            <p className="mt-6 text-center text-sm text-gray-500">
+            <p className="mt-6 text-center text-sm text-slate-600">
               Already have an account?{" "}
               <Link
                 to="/login"

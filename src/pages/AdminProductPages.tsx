@@ -113,20 +113,20 @@ export function AdminProductsPage() {
   }
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-slate-50">
       <AdminHeader
         title="Products"
         subtitle="Manage your pickle catalogue."
       >
         <Link
           to="/admin/products/new"
-          className="rounded-xl bg-amber-300 px-4 py-2 text-sm font-bold text-emerald-950 transition hover:bg-amber-200"
+          className="rounded-xl bg-amber-300 px-4 py-2 text-sm font-bold text-emerald-950 shadow-sm transition hover:bg-amber-200"
         >
           Add product
         </Link>
       </AdminHeader>
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
+      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
         {errorMessage && (
           <div className="rounded-xl bg-red-50 p-4 text-red-700">
             {errorMessage}
@@ -138,11 +138,12 @@ export function AdminProductsPage() {
             Loading products...
           </p>
         ) : (
-          <div className="mt-8 overflow-hidden rounded-2xl bg-white shadow-sm">
+          <div className="mt-8 overflow-hidden rounded-2xl border border-slate-200 bg-white shadow-sm">
 
-            <table className="w-full">
+            <div className="overflow-x-auto">
+            <table className="w-full min-w-[760px]">
 
-              <thead className="bg-gray-50 text-left">
+              <thead className="bg-slate-50 text-left text-xs uppercase tracking-wide text-slate-500">
 
                 <tr>
                   <th className="p-4">
@@ -185,7 +186,7 @@ export function AdminProductsPage() {
                     return (
                       <tr
                         key={product.id}
-                        className="border-t"
+                        className="border-t border-slate-100 transition-colors hover:bg-slate-50/70"
                       >
 
                         <td className="p-4">
@@ -203,7 +204,7 @@ export function AdminProductsPage() {
                               </div>
                             )}
 
-                            <span className="font-bold">
+                            <span className="font-semibold text-slate-900">
                               {product.name}
                             </span>
 
@@ -245,7 +246,7 @@ export function AdminProductsPage() {
 
                             <Link
                               to={`/admin/products/${product.id}/edit`}
-                              className="font-semibold text-emerald-700"
+                              className="font-semibold text-emerald-800 transition hover:text-emerald-950"
                             >
                               Edit
                             </Link>
@@ -257,7 +258,7 @@ export function AdminProductsPage() {
                                   product
                                 )
                               }
-                              className="font-semibold text-red-600"
+                              className="font-semibold text-red-700 transition hover:text-red-900"
                             >
                               Delete
                             </button>
@@ -273,6 +274,7 @@ export function AdminProductsPage() {
 
               </tbody>
             </table>
+            </div>
           </div>
         )}
 

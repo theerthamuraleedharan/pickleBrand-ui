@@ -72,7 +72,7 @@ export async function createAdminProduct(
       "/admin/products",
       formData
     );
-
+   console.log("response.data", response.data);
   return response.data;
 }
 

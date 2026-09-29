@@ -9,21 +9,44 @@
     "Segoe UI",
     sans-serif;
 
-  color: #1f2937;
-  background: #fffdf7;
+  color: #1c2823;
+  background: #f7f7f2;
 
   font-synthesis: none;
   text-rendering: optimizeLegibility;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+
+  font-optical-sizing: auto;
+  font-weight: 400;
+
+  --color-ink: #1c2823;
+  --color-muted: #66736b;
+  --color-brand: #155b43;
+  --color-brand-dark: #0c392b;
+  --color-accent: #d9984e;
+  --color-surface: #ffffff;
+  --color-page: #f7f7f2;
 }
 
 * {
   box-sizing: border-box;
 }
 
+html {
+  min-width: 320px;
+  scroll-behavior: smooth;
+}
+
 body {
   margin: 0;
   min-width: 320px;
   min-height: 100vh;
+  color: var(--color-ink);
+  background:
+    radial-gradient(ellipse at 85% 0%, rgb(216 227 213 / 28%), transparent 32rem),
+    var(--color-page);
+  line-height: 1.5;
 }
 
 button,
@@ -31,4 +54,54 @@ input,
 textarea,
 select {
   font: inherit;
+}
+
+button,
+a,
+input,
+textarea,
+select {
+  -webkit-tap-highlight-color: transparent;
+}
+
+button:not(:disabled) {
+  cursor: pointer;
+}
+
+::selection {
+  color: #fff;
+  background: #155b43;
+}
+
+:focus-visible {
+  outline: 3px solid rgb(217 152 78 / 80%);
+  outline-offset: 3px;
+}
+
+input:not([type="checkbox"]):not([type="radio"]),
+textarea,
+select {
+  transition:
+    border-color 160ms ease,
+    box-shadow 160ms ease,
+    background-color 160ms ease;
+}
+
+input:not([type="checkbox"]):not([type="radio"]):focus,
+textarea:focus,
+select:focus {
+  border-color: #38836a;
+  outline: none;
+  box-shadow: 0 0 0 4px rgb(21 91 67 / 10%);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
 }

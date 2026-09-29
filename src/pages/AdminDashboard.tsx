@@ -73,7 +73,7 @@ export function AdminDashboardPage() {
   }, []);
 
   return (
-    <main className="min-h-screen bg-gray-100">
+    <main className="min-h-screen bg-slate-50">
       <AdminHeader
         title="Admin dashboard"
         subtitle={
@@ -83,7 +83,7 @@ export function AdminDashboardPage() {
         }
       />
 
-      <section className="mx-auto max-w-7xl px-6 py-10">
+      <section className="mx-auto max-w-7xl px-5 py-10 sm:px-8 lg:py-14">
         {errorMessage && (
           <div
             role="alert"
@@ -116,17 +116,18 @@ export function AdminDashboardPage() {
                 value={summary.totalProducts}
                 description="Products available in the catalogue"
                 icon="🫙"
+                to="/admin/products"
               />
             </div>
 
-            <section className="mt-10 rounded-2xl bg-white p-7 shadow-sm">
+            <section className="mt-10 rounded-3xl border border-slate-200 bg-white p-7 shadow-sm sm:p-9">
               <div className="flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <h2 className="text-2xl font-black text-gray-900">
+                  <h2 className="text-2xl font-black tracking-tight text-slate-900">
                     Store overview
                   </h2>
 
-                  <p className="mt-2 max-w-2xl text-gray-600">
+                  <p className="mt-2 max-w-2xl leading-7 text-slate-600">
                     Review catalogue health and keep your
                     pickle products ready for customers.
                   </p>
@@ -134,9 +135,15 @@ export function AdminDashboardPage() {
 
                 <Link
                   to="/admin/products"
-                  className="inline-flex items-center justify-center rounded-xl bg-emerald-800 px-5 py-3 font-semibold text-white transition hover:bg-emerald-900"
+                  className="inline-flex items-center justify-center rounded-xl bg-emerald-950 px-5 py-3 font-semibold text-white shadow-sm transition hover:bg-emerald-800"
                 >
                   Manage products
+                </Link>
+                <Link
+                  to="/admin/planner"
+                  className="inline-flex items-center justify-center rounded-xl border border-emerald-200 bg-emerald-50 px-5 py-3 font-semibold text-emerald-900 transition hover:bg-emerald-100"
+                >
+                  Plan production
                 </Link>
               </div>
             </section>
