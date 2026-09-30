@@ -36,10 +36,12 @@ interface AuthContextValue {
   user: AuthUser | null;
   authenticated: boolean;
   oidcEnabled: boolean;
+  oidcSessionActive: boolean;
   authStatus: AuthStatus;
   authError: string | null;
+  accountLinkingRequired: boolean;
   completeAuthentication: (response: AuthResponse) => void;
-  startLogin: (returnTo?: unknown) => Promise<void>;
+  startLogin: (returnTo?: unknown, idpHint?: "google") => Promise<void>;
   logout: () => Promise<void>;
 }
 
@@ -47,16 +49,18 @@ const AuthContext = createContext<AuthContextValue | undefined>(undefined);
 
 export function AuthProvider({ children }: PropsWithChildren) {
   const oidcEnabled = isOidcMode();
+  // Never hydrate an old local session as an OIDC session; new local sign-ins remain supported.
   const [hasLocalSession, setHasLocalSession] = useState(
-    () => Boolean(getAccessToken() && getStoredUser()),
+    () => !oidcEnabled && Boolean(getAccessToken() && getStoredUser()),
   );
   const [user, setUser] = useState<AuthUser | null>(() =>
-    getAccessToken() ? getStoredUser() : null,
+    !oidcEnabled && getAccessToken() ? getStoredUser() : null,
   );
   const [authStatus, setAuthStatus] = useState<AuthStatus>(
     oidcEnabled && !hasLocalSession ? "loading" : "ready",
   );
   const [authError, setAuthError] = useState<string | null>(null);
+  const [accountLinkingRequired, setAccountLinkingRequired] = useState(false);
   const logoutInProgress = useRef(false);
   const sessionExpired = useRef(false);
   const skipOidcAutoInit = useRef(false);
@@ -74,6 +78,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setUser(null);
       setAuthStatus("expired");
       setAuthError("Your session has expired. Sign in again to continue.");
+      setAccountLinkingRequired(false);
     });
 
     return () => setOidcSessionFailureHandler(null);
@@ -97,16 +102,20 @@ export function AuthProvider({ children }: PropsWithChildren) {
 
         setActiveAuthMethod("oidc");
         try {
+          // The API resolves the verified Keycloak identity to its numeric local user ID.
           const currentUser = await getCurrentUser();
           if (!mounted) return;
           setUser(currentUser);
           setAuthError(null);
+          setAccountLinkingRequired(false);
           setAuthStatus("ready");
         } catch (error) {
           if (!mounted) return;
           setUser(null);
+          const accountLinkingRequired = isAccountLinkingError(error);
+          setAccountLinkingRequired(accountLinkingRequired);
           setAuthError(
-            isAccountLinkingError(error)
+            accountLinkingRequired
               ? getApiErrorMessage(
                   error,
                   "This existing email needs administrator account linking. Sign out and choose another account.",
@@ -119,6 +128,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
         if (!mounted) return;
         setActiveAuthMethod("none");
         setUser(null);
+        setAccountLinkingRequired(false);
         setAuthError(
           "Keycloak could not initialize. Check that the OIDC services are running, then reload this page.",
         );
@@ -140,25 +150,27 @@ export function AuthProvider({ children }: PropsWithChildren) {
       setHasLocalSession(true);
       setUser(response.user);
       setAuthError(null);
+      setAccountLinkingRequired(false);
       setAuthStatus("ready");
     },
     [],
   );
 
   const startLogin = useCallback(
-    async (returnTo?: unknown) => {
+    async (returnTo?: unknown, idpHint?: "google") => {
       if (!oidcEnabled) {
         throw new Error("Keycloak sign-in is only available in OIDC mode.");
       }
       sessionExpired.current = false;
       skipOidcAutoInit.current = false;
       setAuthError(null);
+      setAccountLinkingRequired(false);
       try {
         clearAuthentication();
         setHasLocalSession(false);
         setUser(null);
         setActiveAuthMethod("none");
-        await getOidcAuth().login(returnTo);
+        await getOidcAuth().login(returnTo, idpHint);
       } catch {
         setAuthStatus("error");
         setAuthError("Keycloak could not start sign-in. Please try again.");
@@ -174,6 +186,7 @@ export function AuthProvider({ children }: PropsWithChildren) {
     skipOidcAutoInit.current = false;
     setUser(null);
     setAuthError(null);
+    setAccountLinkingRequired(false);
     if (activeMethod !== "oidc") {
       clearAuthentication();
       setHasLocalSession(false);
@@ -195,13 +208,16 @@ export function AuthProvider({ children }: PropsWithChildren) {
     }
   }, []);
 
+  const oidcSessionActive = getActiveAuthMethod() === "oidc";
   const value = useMemo<AuthContextValue>(
     () => ({
       user,
       authenticated: user !== null,
       oidcEnabled,
+      oidcSessionActive,
       authStatus,
       authError,
+      accountLinkingRequired,
       completeAuthentication,
       startLogin,
       logout,
@@ -209,8 +225,10 @@ export function AuthProvider({ children }: PropsWithChildren) {
     [
       user,
       oidcEnabled,
+      oidcSessionActive,
       authStatus,
       authError,
+      accountLinkingRequired,
       completeAuthentication,
       startLogin,
       logout,

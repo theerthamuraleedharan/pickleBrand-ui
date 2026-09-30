@@ -75,6 +75,7 @@ export function createOidcAuth(adapter: OidcAdapter) {
   function initialize(): Promise<boolean> {
     // One shared init promise prevents StrictMode's effect replay from initializing twice.
     if (!initialization) {
+      // Keycloak consumes the callback here before AuthProvider allows protected routes through.
       initialization = adapter.init({
         onLoad: "check-sso",
         flow: "standard",
@@ -97,6 +98,7 @@ export function createOidcAuth(adapter: OidcAdapter) {
 
       // Every request waiting on an expiring token shares the same refresh call.
       if (!refresh) {
+        // The adapter refreshes with its in-memory refresh token; callers only receive access tokens.
         refresh = adapter.updateToken(30).finally(() => {
           refresh = null;
         });
@@ -105,16 +107,18 @@ export function createOidcAuth(adapter: OidcAdapter) {
       return adapter.token ?? null;
     },
 
-    async login(returnTo?: unknown): Promise<void> {
+    async login(returnTo?: unknown, idpHint?: "google"): Promise<void> {
       const safeRoute = sanitizeInternalRoute(returnTo);
       if (safeRoute) {
         sessionStorage.setItem(RETURN_TO_KEY, safeRoute);
       } else {
         sessionStorage.removeItem(RETURN_TO_KEY);
       }
+      // Keycloak owns both the normal login page and its Google broker redirect.
       await adapter.login({
         redirectUri: getOidcCallbackUri(window.location.origin),
         scope: OIDC_SCOPES,
+        ...(idpHint ? { idpHint } : {}),
       });
     },
 

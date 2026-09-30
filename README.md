@@ -56,3 +56,18 @@ validated JWT access tokens already issued can remain valid until their five-min
 
 Run `npm test` for focused OIDC/API authentication tests and `npm run build` for the
 production TypeScript and Vite build.
+
+### Google and production configuration
+
+Google sign-in is available only after an administrator configures the Google identity
+provider in Keycloak with alias `google`, and registers Keycloak's broker callback URL
+(`http://localhost:8081/realms/sujus-pickle/broker/google/endpoint`) with Google. Google
+client credentials belong in Keycloak only; never put a Google client secret in frontend
+environment variables or source control.
+
+For production, use HTTPS and a production Keycloak issuer. Register the production
+frontend callback and post-logout URIs on the Keycloak client, and set the backend's
+`APP_CORS_ALLOWED_ORIGINS` to the exact deployed frontend origin (scheme, host and port,
+without a path). Logout clears the browser's application session and ends the Keycloak
+session, but it does not instantly revoke already-issued JWT access tokens; they expire
+after five minutes.

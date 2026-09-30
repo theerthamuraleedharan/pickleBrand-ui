@@ -6,7 +6,15 @@ import { useAuth } from "../contexts/AuthContext";
 
 export function OidcCallbackPage() {
   const navigate = useNavigate();
-  const { user, authStatus, authError, logout, startLogin } = useAuth();
+  const {
+    user,
+    oidcSessionActive,
+    authStatus,
+    authError,
+    accountLinkingRequired,
+    logout,
+    startLogin,
+  } = useAuth();
 
   useEffect(() => {
     if (authStatus !== "ready" || !user) return;
@@ -35,20 +43,33 @@ export function OidcCallbackPage() {
           {authError ?? "Return to sign-in and try again."}
         </p>
         <div className="mt-6 flex flex-wrap gap-3">
-          <button
-            type="button"
-            onClick={() => void startLogin().catch(() => undefined)}
-            className="rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white"
-          >
-            Sign in with Keycloak
-          </button>
-          <button
-            type="button"
-            onClick={() => void logout().catch(() => undefined)}
-            className="rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900"
-          >
-            Sign out / change account
-          </button>
+          {!accountLinkingRequired && (
+            <>
+              <button
+                type="button"
+                onClick={() => void startLogin().catch(() => undefined)}
+                className="rounded-xl bg-emerald-800 px-5 py-3 font-bold text-white"
+              >
+                Sign in with Keycloak
+              </button>
+              <button
+                type="button"
+                onClick={() => void startLogin(undefined, "google").catch(() => undefined)}
+                className="rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900"
+              >
+                Continue with Google
+              </button>
+            </>
+          )}
+          {oidcSessionActive && (
+            <button
+              type="button"
+              onClick={() => void logout().catch(() => undefined)}
+              className="rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900"
+            >
+              Sign out / change account
+            </button>
+          )}
           {authStatus === "error" && (
             <button
               type="button"

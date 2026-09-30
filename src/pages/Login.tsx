@@ -14,8 +14,10 @@ export function LoginPage() {
     completeAuthentication,
     user,
     oidcEnabled,
+    oidcSessionActive,
     authStatus,
     authError,
+    accountLinkingRequired,
     startLogin,
     logout,
   } = useAuth();
@@ -214,14 +216,25 @@ export function LoginPage() {
                   or
                   <span className="h-px flex-1 bg-gray-200" />
                 </div>
-                <button
-                  type="button"
-                  onClick={() => void startLogin(returnTo).catch(() => undefined)}
-                  className="w-full rounded-xl border border-slate-300 bg-white px-5 py-3.5 font-bold text-slate-800 transition hover:border-emerald-700 hover:bg-emerald-50"
-                >
-                  Sign in with Keycloak
-                </button>
-                {authError && (
+                {!accountLinkingRequired && (
+                  <>
+                    <button
+                      type="button"
+                      onClick={() => void startLogin(returnTo).catch(() => undefined)}
+                      className="w-full rounded-xl border border-slate-300 bg-white px-5 py-3.5 font-bold text-slate-800 transition hover:border-emerald-700 hover:bg-emerald-50"
+                    >
+                      Sign in with Keycloak
+                    </button>
+                    <button
+                      type="button"
+                      onClick={() => void startLogin(returnTo, "google").catch(() => undefined)}
+                      className="mt-3 w-full rounded-xl border border-slate-300 bg-white px-5 py-3.5 font-bold text-slate-800 transition hover:border-emerald-700 hover:bg-emerald-50"
+                    >
+                      Continue with Google
+                    </button>
+                  </>
+                )}
+                {oidcSessionActive && (
                   <button
                     type="button"
                     onClick={() => void logout().catch(() => undefined)}

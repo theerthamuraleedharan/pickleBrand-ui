@@ -95,6 +95,21 @@ describe("OIDC authentication", () => {
     );
   });
 
+  it("uses Keycloak's identity-provider hint for Google without a browser OAuth flow", async () => {
+    const adapter = createAdapter();
+    const auth = createOidcAuth(adapter);
+
+    await auth.login("/products", "google");
+
+    expect(adapter.login).toHaveBeenCalledWith(
+      expect.objectContaining({
+        redirectUri: "http://localhost:5173/oidc/callback",
+        scope: "openid profile email",
+        idpHint: "google",
+      }),
+    );
+  });
+
   it("routes using the backend role and rejects external return URLs", () => {
     expect(getRoleHome("CUSTOMER")).toBe("/products");
     expect(getRoleHome("ADMIN")).toBe("/admin");

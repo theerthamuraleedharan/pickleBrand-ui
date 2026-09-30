@@ -19,8 +19,10 @@ export function AdminLoginPage() {
     completeAuthentication,
     user,
     oidcEnabled,
+    oidcSessionActive,
     authStatus,
     authError,
+    accountLinkingRequired,
     startLogin,
     logout,
   } = useAuth();
@@ -202,14 +204,25 @@ export function AdminLoginPage() {
               or
               <span className="h-px flex-1 bg-gray-200" />
             </div>
-            <button
-              type="button"
-              onClick={() => void startLogin(returnTo).catch(() => undefined)}
-              className="w-full rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900 transition hover:bg-emerald-50"
-            >
-              Sign in with Keycloak
-            </button>
-            {authError && (
+            {!accountLinkingRequired && (
+              <button
+                type="button"
+                onClick={() => void startLogin(returnTo).catch(() => undefined)}
+                className="w-full rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900 transition hover:bg-emerald-50"
+              >
+                Sign in with Keycloak
+              </button>
+            )}
+            {!accountLinkingRequired && (
+              <button
+                type="button"
+                onClick={() => void startLogin(returnTo, "google").catch(() => undefined)}
+                className="mt-3 w-full rounded-xl border border-emerald-800 px-5 py-3 font-bold text-emerald-900 transition hover:bg-emerald-50"
+              >
+                Continue with Google
+              </button>
+            )}
+            {oidcSessionActive && (
               <button
                 type="button"
                 onClick={() => void logout().catch(() => undefined)}
