@@ -6,6 +6,7 @@ import {
 
 import { LoginPage } from "./pages/Login";
 import { CartPage } from "./pages/CartPage";
+import { BuyNowCheckoutPage } from "./pages/BuyNowCheckoutPage";
 import { ProductListPage } from "./pages/ProductListPage";
 import { RegisterPage } from "./pages/Register";
 import { UserProfilePage } from "./pages/UserProfilePage";
@@ -23,6 +24,7 @@ function App() {
   return (
     <Routes>
       <Route path="/cart" element={<ProtectedRoute><CartPage /></ProtectedRoute>} />
+      <Route path="/checkout/buy-now/:productId" element={<ProtectedRoute><BuyNowCheckoutPage /></ProtectedRoute>} />
       <Route
         path="/"
         element={<Navigate to="/login" replace />}

@@ -11,10 +11,13 @@ export interface CartContextValue {
   itemCount: number;
   subtotal: number;
   storageError: boolean;
-  addItem: (product: Product) => void;
-  setQuantity: (id: number, quantity: number) => void;
-  removeItem: (id: number) => void;
-  clearCart: () => void;
+  cartStatus: "loading" | "ready" | "error" | "unauthenticated";
+  cartError: string | null;
+  refreshCart: () => Promise<CartItem[]>;
+  addItem: (product: Product) => Promise<void>;
+  setQuantity: (id: number, quantity: number) => Promise<void>;
+  removeItem: (id: number) => Promise<void>;
+  clearCart: () => Promise<void>;
 }
 
 export const CartContext = createContext<CartContextValue | undefined>(undefined);

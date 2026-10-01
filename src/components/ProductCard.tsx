@@ -1,3 +1,5 @@
+import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import type { Product } from "../types/Product";
 import { useCart } from "../contexts/cartContext";
 import { resolveImageUrl } from "../utils/resolveImageUrl";
@@ -13,11 +15,28 @@ const priceFormatter = new Intl.NumberFormat("en-IN", {
 
 export function ProductCard({product,
 }: ProductCardProps) {
-  const { items, addItem } = useCart();
+  const navigate = useNavigate();
+  const { items, addItem, cartStatus, cartError, refreshCart } = useCart();
+  const [addingToCart, setAddingToCart] = useState(false);
+  const [addToCartMessage, setAddToCartMessage] = useState<string | null>(null);
   const quantityInCart = items.find(item => item.product.id === product.id)?.quantity ?? 0;
   const outOfStock = product.stockQuantity <= 0 || !product.active;
   const atLimit = quantityInCart >= product.stockQuantity;
+  const cartAvailable = cartStatus === "ready";
    const imageUrl = resolveImageUrl(product.imageUrl);
+
+  async function handleAddToCart() {
+    try {
+      setAddingToCart(true);
+      setAddToCartMessage(null);
+      await addItem(product);
+      setAddToCartMessage(`${product.name} was added to your cart.`);
+    } catch {
+      setAddToCartMessage(cartError ?? "We couldn’t add this product to your cart. Please retry.");
+    } finally {
+      setAddingToCart(false);
+    }
+  }
 
   return (
     <article className="group flex h-full flex-col overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_5px_22px_-12px_rgba(15,23,42,0.25)] transition duration-300 hover:-translate-y-1 hover:border-emerald-200 hover:shadow-xl">
@@ -64,7 +83,7 @@ export function ProductCard({product,
           {product.category.replace("_", " ")} · {product.weightGrams} g
         </p>
 
-        <div className="mt-auto flex items-end justify-between gap-3 border-t border-slate-100 pt-5">
+        <div className="mt-auto flex flex-wrap items-end justify-between gap-3 border-t border-slate-100 pt-5">
           <div>
             <p className="text-xl font-black tracking-tight text-emerald-900 sm:text-2xl">
               {priceFormatter.format(product.price)}
@@ -83,18 +102,39 @@ export function ProductCard({product,
             </p>
           </div>
 
+          <div className="flex flex-wrap gap-2">
+            <button
+              type="button"
+              disabled={outOfStock || atLimit || product.id === null || addingToCart || !cartAvailable}
+              onClick={() => void handleAddToCart()}
+              className="rounded-full bg-emerald-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+            >
+              {addingToCart ? "Adding…" : cartStatus === "loading" ? "Loading cart…" : !cartAvailable ? "Cart unavailable" : outOfStock ? "Unavailable" : atLimit ? "Max in cart" : "Add to cart"}
+            </button>
+            <button
+              type="button"
+              disabled={outOfStock || product.id === null}
+              onClick={() => navigate(`/checkout/buy-now/${product.id}`)}
+              className="rounded-full border border-emerald-900 px-4 py-2.5 text-sm font-bold text-emerald-950 transition hover:bg-emerald-50 disabled:cursor-not-allowed disabled:border-slate-300 disabled:text-slate-400"
+            >
+              Buy Now
+            </button>
+          </div>
+        </div>
+        {cartStatus === "error" && (
           <button
             type="button"
-            disabled={outOfStock || atLimit || product.id === null}
-            onClick={() => addItem(product)}
-            className="rounded-full bg-emerald-900 px-4 py-2.5 text-sm font-bold text-white shadow-sm transition hover:bg-emerald-800 focus-visible:outline-emerald-700 disabled:cursor-not-allowed disabled:bg-slate-300 disabled:text-slate-500 disabled:shadow-none"
+            onClick={() => void refreshCart().catch(() => undefined)}
+            className="mt-3 min-h-5 text-left text-sm font-semibold text-red-800 underline"
           >
-            {outOfStock ? "Unavailable" : atLimit ? "Max in cart" : "Add to cart"}
+            {cartError ?? "Cart unavailable"} · Retry
           </button>
-        </div>
-        <p role="status" className="mt-3 min-h-5 text-sm font-semibold text-emerald-800">
-          {quantityInCart > 0 ? `${quantityInCart} in your cart` : ""}
-        </p>
+        )}
+        {cartStatus !== "error" && (
+          <p role="status" className="mt-3 min-h-5 text-sm font-semibold text-emerald-800">
+            {cartError ?? addToCartMessage ?? (quantityInCart > 0 ? `${quantityInCart} in your cart` : "")}
+          </p>
+        )}
       </div>
     </article>
   );

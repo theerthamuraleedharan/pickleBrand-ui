@@ -1,79 +1,203 @@
-import { useRef, useState, type PropsWithChildren } from "react";
-import { useAuth } from "./AuthContext";
-import { CartContext, type CartItem } from "./cartContext";
+import {
+  useCallback,
+  useEffect,
+  useRef,
+  useState,
+  type PropsWithChildren,
+} from "react";
+import axios from "axios";
 
-function readCart(key: string): CartItem[] {
-  try {
-    const saved: unknown = JSON.parse(localStorage.getItem(key) ?? "[]");
-    if (!Array.isArray(saved)) return [];
-    const ids = new Set<number>();
-    return saved.filter((item): item is CartItem => {
-      const p = item?.product;
-      if (!p || !Number.isInteger(p.id) || ids.has(p.id) ||
-        typeof p.name !== "string" || typeof p.active !== "boolean" ||
-        !Number.isFinite(p.price) || p.price < 0 ||
-        !Number.isInteger(p.stockQuantity) || p.stockQuantity < 1 ||
-        !Number.isFinite(p.weightGrams) ||
-        !(p.imageUrl === null || typeof p.imageUrl === "string") ||
-        !Number.isInteger(item.quantity) || item.quantity < 1 ||
-        item.quantity > p.stockQuantity) return false;
-      ids.add(p.id);
-      return p.active;
-    });
-  } catch {
-    return [];
+import {
+  addCartItem,
+  deleteCartItem,
+  getCart,
+  setCartItemQuantity,
+} from "../api/cartApi";
+import { useAuth } from "./AuthContext";
+import {
+  CartContext,
+  type CartContextValue,
+  type CartItem,
+} from "./cartContext";
+import type { Product } from "../types/Product";
+import { getApiErrorMessage } from "../utils/getApiErrorMessage";
+
+function getCartError(error: unknown): string {
+  if (axios.isAxiosError(error)) {
+    if (error.response?.status === 401) {
+      return "Your sign-in session has expired. Sign in again to load your cart.";
+    }
+    if (error.response?.status === 403) {
+      return "You don’t have permission to access this cart.";
+    }
   }
+  return getApiErrorMessage(error, "Your cart could not be synchronized. Please try again.");
 }
 
-function AccountCart({ storageKey, children }: PropsWithChildren<{ storageKey: string }>) {
-  const [items, setItems] = useState<CartItem[]>(() => readCart(storageKey));
+function AccountCart({
+  storageKey,
+  authenticated,
+  children,
+}: PropsWithChildren<{ storageKey: string; authenticated: boolean }>) {
+  const [items, setItems] = useState<CartItem[]>([]);
   const itemsRef = useRef(items);
   const [storageError, setStorageError] = useState(false);
+  const [cartStatus, setCartStatus] =
+    useState<CartContextValue["cartStatus"]>(
+      authenticated ? "loading" : "unauthenticated",
+    );
+  const [cartError, setCartError] = useState<string | null>(null);
+  const mountedRef = useRef(false);
 
-  function updateItems(update: (current: CartItem[]) => CartItem[]) {
-    const next = update(itemsRef.current);
-    itemsRef.current = next;
-    setItems(next);
+  const commitItems = useCallback(
+    (next: CartItem[]) => {
+      itemsRef.current = next;
+      setItems(next);
+      try {
+        localStorage.setItem(storageKey, JSON.stringify(next));
+        setStorageError(false);
+      } catch {
+        setStorageError(true);
+      }
+    },
+    [storageKey],
+  );
+
+  const refreshCart = useCallback(async () => {
+    if (!authenticated) {
+      const error = new Error("Sign in to load your cart.");
+      setCartStatus("unauthenticated");
+      setCartError(error.message);
+      throw error;
+    }
+
+    if (mountedRef.current) {
+      setCartStatus("loading");
+      setCartError(null);
+    }
     try {
-      localStorage.setItem(storageKey, JSON.stringify(next));
-      setStorageError(false);
-    } catch {
-      setStorageError(true);
+      const serverItems = await getCart();
+      if (mountedRef.current) {
+        commitItems(serverItems);
+        setCartStatus("ready");
+        setCartError(null);
+      }
+      return serverItems;
+    } catch (error) {
+      if (mountedRef.current) {
+        setCartStatus("error");
+        setCartError(getCartError(error));
+      }
+      throw error;
+    }
+  }, [authenticated, commitItems]);
+
+  useEffect(() => {
+    mountedRef.current = true;
+    if (authenticated) {
+      void getCart()
+        .then((serverItems) => {
+          if (!mountedRef.current) return;
+          commitItems(serverItems);
+          setCartStatus("ready");
+          setCartError(null);
+        })
+        .catch((error: unknown) => {
+          if (!mountedRef.current) return;
+          setCartStatus("error");
+          setCartError(getCartError(error));
+        });
+    }
+    return () => {
+      mountedRef.current = false;
+    };
+  }, [authenticated, commitItems]);
+
+  async function synchronizeMutation(
+    mutation: () => Promise<void>,
+  ): Promise<void> {
+    if (!authenticated) {
+      const error = new Error("Sign in to update your cart.");
+      setCartStatus("unauthenticated");
+      setCartError(error.message);
+      throw error;
+    }
+    try {
+      setCartStatus("loading");
+      setCartError(null);
+      await mutation();
+      await refreshCart();
+    } catch (error) {
+      setCartError(getCartError(error));
+      setCartStatus("error");
+      throw error;
     }
   }
 
-  return (
-    <CartContext.Provider value={{
-      items,
-      storageError,
-      itemCount: items.reduce((total, item) => total + item.quantity, 0),
-      subtotal: items.reduce((total, item) => total + Math.round(item.product.price * 100) * item.quantity, 0) / 100,
-      addItem(product) {
-        if (product.id === null || !product.active || product.stockQuantity < 1) return;
-        updateItems(current => {
-          const existing = current.find(item => item.product.id === product.id);
-          if (!existing) return [...current, { product, quantity: 1 }];
-          return current.map(item => item.product.id === product.id
-            ? { product, quantity: Math.min(item.quantity + 1, product.stockQuantity) }
-            : item);
-        });
-      },
-      setQuantity(id, quantity) {
-        if (!Number.isInteger(quantity) || quantity < 1) return;
-        updateItems(current => current.map(item => item.product.id === id
-          ? { ...item, quantity: Math.min(quantity, item.product.stockQuantity) }
-          : item));
-      },
-      removeItem(id) { updateItems(current => current.filter(item => item.product.id !== id)); },
-      clearCart() { updateItems(() => []); },
-    }}>
-      {children}
-    </CartContext.Provider>
-  );
+  const value: CartContextValue = {
+    items,
+    storageError,
+    cartStatus,
+    cartError,
+    refreshCart,
+    itemCount: items.reduce((total, item) => total + item.quantity, 0),
+    subtotal:
+      items.reduce(
+        (total, item) =>
+          total + Math.round(item.product.price * 100) * item.quantity,
+        0,
+      ) / 100,
+    addItem(product: Product) {
+      if (product.id === null || !product.active || product.stockQuantity < 1) {
+        const error = new Error("This product is not available to add to your cart.");
+        setCartError(error.message);
+        return Promise.reject(error);
+      }
+      const productId = product.id;
+      return synchronizeMutation(() =>
+        addCartItem({ productId, quantity: 1 }),
+      );
+    },
+    setQuantity(id, quantity) {
+      if (!Number.isInteger(quantity) || quantity < 1) {
+        return Promise.reject(new Error("Choose a valid item quantity."));
+      }
+      const product = itemsRef.current.find((item) => item.product.id === id)?.product;
+      if (!product) {
+        return Promise.reject(new Error("This product is no longer in your cart."));
+      }
+      return synchronizeMutation(() =>
+        setCartItemQuantity(id, Math.min(quantity, product.stockQuantity)),
+      );
+    },
+    removeItem(id) {
+      return synchronizeMutation(() => deleteCartItem(id));
+    },
+    clearCart() {
+      return synchronizeMutation(async () => {
+        await Promise.all(
+          itemsRef.current.map(({ product }) => {
+            if (product.id === null) return Promise.resolve();
+            return deleteCartItem(product.id);
+          }),
+        );
+      });
+    },
+  };
+
+  return <CartContext.Provider value={value}>{children}</CartContext.Provider>;
 }
 
 export function CartProvider({ children }: PropsWithChildren) {
-  const { user } = useAuth();
+  const { user, authenticated } = useAuth();
   const storageKey = `sujus-cart:${user?.id ?? "guest"}`;
-  return <AccountCart key={storageKey} storageKey={storageKey}>{children}</AccountCart>;
+  return (
+    <AccountCart
+      key={storageKey}
+      storageKey={storageKey}
+      authenticated={authenticated}
+    >
+      {children}
+    </AccountCart>
+  );
 }
